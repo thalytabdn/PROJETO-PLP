@@ -17,7 +17,9 @@ O projeto tem como funcionalidade organizar e gerenciar as notas de disciplinas 
 
 6- Vizualizar notas de determinada disciplina
 
-7- Vizualizar quantos pontos são necessários para pagar determinada disciplina 
+7- Vizualizar quantos pontos são necessários para pagar determinada disciplina
+
+8- Adicionar comentário sobre determinada disciplina
 
 ## Desenvolvedores
 
