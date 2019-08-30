@@ -1,7 +1,7 @@
 # PROJETO-PLP
-# PROJETO PARA A DISCIPLINA PARADIGMAS DE LINGUAGEM DE PROGRAMAÇÃO
+## Projeto para a disciplina Paradigmas de Linguagem de Programação
 
-INTRODUÇÃO: O projeto tem como funcionalidade organizar e gerenciar as notas de disciplinas que estão sendo cursadas em determinado período. Dessa forma possibilitaria ao usuário uma melhor relação com sua situação acadêmica, assim como uma maior praticidade no gerenciamento da mesma.
+O projeto tem como funcionalidade organizar e gerenciar as notas de disciplinas que estão sendo cursadas em determinado período. Dessa forma possibilitaria ao usuário uma melhor relação com sua situação acadêmica, assim como uma maior praticidade no gerenciamento da mesma.
 
 ## Funcionalidades
 
