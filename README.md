@@ -22,4 +22,4 @@ O projeto tem como funcionalidade organizar e gerenciar as notas de disciplinas 
 
 #
 __Professora/ Orientadora do projeto__
-- Melina Mongiovi
+Melina Mongiovi
