@@ -24,7 +24,7 @@ O projeto tem como funcionalidade organizar e gerenciar as notas de disciplinas 
 ## Desenvolvedores
 
 - [Thalyta Barbosa](https://github.com/thalytabdn)
-- [Isaías Martins](https://github.com/thalytabdn)
+- [Isaías Martins](https://github.com/isaiasmtp)
 - [Rodrigo Farias](https://github.com/RodrigoFarias23D)
 - [Matheus Augusto](https://github.com/Matheusasn)
 - [Matheus Claudino](https://github.com/MatheusClaudi)
