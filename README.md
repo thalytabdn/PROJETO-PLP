@@ -26,7 +26,8 @@ O projeto tem como funcionalidade organizar e gerenciar as notas de disciplinas 
 - [Thalyta Barbosa](https://github.com/thalytabdn)
 - [Isaías Martins](https://github.com/thalytabdn)
 - [Rodrigo Farias](https://github.com/RodrigoFarias23D)
-- [Matheus Augusto]()
+- [Matheus Augusto](https://github.com/Matheusasn)
+- [Matheus Claudino](https://github.com/MatheusClaudi)
 
 #
 __Professora/ Orientadora do projeto__
