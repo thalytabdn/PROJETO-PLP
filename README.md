@@ -7,14 +7,14 @@ O projeto tem como funcionalidade organizar e gerenciar as notas de disciplinas 
 
 1- Cadastrar um nota de determinada disciplina
 
-    * Cada disciplina teria uma quantidade especifica de notas e seus respectivos peso.
+    Cada disciplina teria uma quantidade especifica de notas e seus respectivos peso.
     Dessa forma, ao adicionar uma nota seria informado o seu peso
 
 2- Atualizar nota de determinada disciplina
 
 3- Cadastrar uma disciplina
 
-   * Ao cadastrar uma disciplina, o usurio tera que especificar a quantidade de notas e seus respectivos pesos
+      Ao cadastrar uma disciplina, o usurio tera que especificar a quantidade de notas e seus respectivos pesos
 
 4- Atualizar disciplina 
 
