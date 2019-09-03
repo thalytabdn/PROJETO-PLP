@@ -14,6 +14,8 @@ O projeto tem como funcionalidade organizar e gerenciar as notas de disciplinas 
 
 3- Cadastrar uma disciplina
 
+   * Ao cadastrar uma disciplina, o usurio tera que especificar a quantidade de notas e seus respectivos pesos
+
 4- Atualizar disciplina 
 
 5- Vizualizar lista de disciplinas
