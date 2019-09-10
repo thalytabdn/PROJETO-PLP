@@ -25,7 +25,16 @@ O projeto tem como funcionalidade organizar e gerenciar as notas de disciplinas 
 
 7- Vizualizar quantos pontos são necessários para pagar determinada disciplina
 
-8- Adicionar comentário sobre determinada disciplina
+8- Cadastrar um compromisso
+    
+     Cada compromisso tem titulo, descricao, prioridade e status (se foi feito ou nao)
+    
+
+9- Vizualizar compromissos
+
+10- Editar compromisso 
+
+11- Resetar sistema
 
 ## Desenvolvedores
 
