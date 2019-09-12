@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 
+
 using namespace std;
 
 
@@ -274,7 +275,14 @@ int manipularDisciplina(int indice){
     }
 }
 
-int exibeDisciplinas()
+int excluiDisciplina(int a){
+
+	bancoDados.erase(bancoDados.begin()+a);
+
+	return 1;
+}
+
+int exibeDisciplinas(char parametro)
 {
 
 	char keyPressed;
@@ -314,7 +322,7 @@ int exibeDisciplinas()
 		{
 
 			lista[posIndicador] = indicadorVazio;
-			posIndicador = (posIndicador + 1) % 2;
+			posIndicador = (posIndicador + 1) % lista.size();
 			lista[posIndicador] = indicador;
 		}
 
@@ -336,16 +344,95 @@ int exibeDisciplinas()
 		{
 			return 1;
 		}
+		
+		if (parametro == 'e'){
+			if (int(keyPressed) == int('r')){
 
-		if (int(keyPressed) == int('d')){
+        	    if (excluiDisciplina(posIndicador) == -1){
+            	    return -1;
+            	}
+			}
+		}
+		if (parametro == 'n'){
+			if (int(keyPressed) == int('d')){
 
-            if (manipularDisciplina(posIndicador) == -1){
-                return -1;
-            }
+        	    if (manipularDisciplina(posIndicador) == -1){
+            	    return -1;
+            	}
+			}
 		}
 	}
+
 }
 
+vector<nota> cadastraNota(){
+	vector<nota> notas; 
+	string resposta;
+	cout << "Deseja sistema de notas padrão? (Y/n) ";
+	getline(cin, resposta);
+	if(resposta == "y" || resposta == "Y"){
+		nota nota1;
+		nota1.nomeNota = "Primeira Nota: ";
+		nota1.nota = 0;
+		nota1.peso = 1.0/3.0;
+		nota1.dadoUsavel = false;
+		notas.push_back(nota1);
+		nota1.nomeNota = "Segunda Nota: ";
+		notas.push_back(nota1);
+		nota1.nomeNota = "Terceira Nota: ";
+		notas.push_back(nota1);
+	}else{
+		int numNotas;
+		string newNota;
+		double pesoNota;
+		nota novaNota;
+		cout << "Qual o numero de notas: \n";
+		cin >> numNotas;
+		
+		for (int i = 0; i < numNotas; i++)
+		{
+			cout << "Qual o nome da Nota " << i+1 << ": " << endl;
+			
+			cin.ignore();
+			getline(cin, newNota);
+			
+			cout << "Qual o peso da Nota " << i+1 << ": " << endl;
+			cin >> pesoNota;
+			novaNota.nomeNota = newNota;
+			novaNota.peso = pesoNota;
+			novaNota.nota = 0;
+			novaNota.dadoUsavel = false;
+			notas.push_back(novaNota);
+		}
+
+	}
+	return notas;
+}
+
+void cadastraDisciplina(){
+	string nomeDisciplina;
+	string professor;
+	string sala;
+	
+	disciplina newDisciplina;
+
+	cout << "Digite o nome da disciplina: \n";
+	getline(cin, nomeDisciplina);
+	newDisciplina.nome = nomeDisciplina;
+
+	cout << "Digite o nome do professor: \n";
+	getline(cin, professor);
+	newDisciplina.professor = professor;
+	
+	cout << "Digite o nome da sala: \n";
+	getline(cin, sala);
+	newDisciplina.sala = sala;
+
+	newDisciplina.notas = cadastraNota();
+	bancoDados.push_back(newDisciplina);
+	
+
+}
 
 int exibeConfiguracoes()
 {
@@ -393,6 +480,13 @@ int exibeConfiguracoes()
 
 		else if(int(keyPressed) == int('d'))
 		{
+			if (posIndicador == 0){
+				cadastraDisciplina();
+			}
+
+			else if (posIndicador == 2){
+				exibeDisciplinas('e');
+			}
 			return 1;
 		}
 		else if(int(keyPressed) == int('a')){
@@ -448,7 +542,7 @@ void run()
 
 			if (posIndicador == 0)
 			{
-				if (exibeDisciplinas() == -1)
+				if (exibeDisciplinas('n') == -1)
 				{
 					return;
 				}
@@ -496,3 +590,5 @@ int main()
 	run();
 	return 1;
 }
+
+
