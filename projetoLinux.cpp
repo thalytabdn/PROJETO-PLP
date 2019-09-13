@@ -378,7 +378,6 @@ string lerString(){
     string resposta;
 
     cout << endl << "Digite o novo valor" << endl;
-    cin.ignore();
     getline(cin, resposta);
 
     return resposta;
@@ -725,7 +724,7 @@ int atualizaDisciplina(int indice){
             }
 			if (posIndicador == 3) {
 
-                cout << endl << "Informe o numero de disciplinas" << endl;
+                cout << endl << "Informe o novo numero de notas" << endl;
 				int n = confirmacaoLeituraInt();
 
 				if (n > bancoDados[indice].notas.size()){
