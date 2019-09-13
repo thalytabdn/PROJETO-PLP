@@ -950,19 +950,21 @@ void cadastraCompromisso() {
 
 	system("clear");
 
+	string titulo, detalhe, prioridade;
+
 	compromisso novoCompromisso;
 
 	cout << "Digite o titulo: ";
-	cin.ignore();
-  	getline(cin, novoCompromisso.titulo);
+  	getline(cin, titulo);
+    novoCompromisso.titulo = titulo;
 
 	cout << "Digite a descrição: ";
-  	cin.ignore();
-  	getline(cin, novoCompromisso.detalhe);
+  	getline(cin, detalhe);
+  	novoCompromisso.detalhe = detalhe;
 
 	cout << "Digite oa prioridade: ";
-  	cin.ignore();
-  	getline(cin, novoCompromisso.prioridade);
+  	getline(cin, prioridade);
+  	novoCompromisso.prioridade = prioridade;
 
   	novoCompromisso.status = "Em andamento";
 
