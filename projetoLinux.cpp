@@ -1281,7 +1281,7 @@ void run()
 
         system("clear");
 
-        cout << endl << "|| Aperte (d) para entrar nas opcoes ||" << endl;
+        cout << endl << "|| Se mova com (S) e Aperte (d) para entrar nas opcoes ||" << endl<<endl;
 		cout << lista[0] << " Disciplinas" << endl;
 		cout << lista[1] << " Compromissos" << endl;
 		cout << lista[2] << " Configuracoes" << endl;
