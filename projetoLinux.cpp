@@ -776,17 +776,17 @@ int exibeDisciplinas(char parametro)
 	while(1)
 	{
 		system("clear");
-		cout << endl << "|| Aperte (d) para escolher qual disciplina";
+
 		if (parametro == 'a'){
-            cout << " editar ||" << endl;
+            cout << endl << "|| Aperte (d) para escolher qual disciplina editar ||" << endl;
 		}
 
 		if (parametro == 'n'){
-            cout << " acessar ||" << endl;
+            cout << endl << "|| Aperte (d) para escolher qual disciplina acessar ||" << endl;
 		}
 
 		if (parametro == 'e'){
-            cout << " excluir ||" << endl;
+            cout << endl << "|| Aperte (r) para escolher qual disciplina excluir ||" << endl;
 		}
 
 		if (bancoDados.size() == 0)
@@ -1283,7 +1283,7 @@ void run()
 
         system("clear");
 
-        cout << endl << "|| Se mova com (S) e Aperte (d) para entrar nas opcoes ||" << endl<<endl;
+        cout << endl << "|| Se mova com (s) e Aperte (d) para entrar nas opcoes ||" << endl<<endl;
 		cout << lista[0] << " Disciplinas" << endl;
 		cout << lista[1] << " Compromissos" << endl;
 		cout << lista[2] << " Configuracoes" << endl;
