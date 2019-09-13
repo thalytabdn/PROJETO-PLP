@@ -378,7 +378,8 @@ string lerString(){
     string resposta;
 
     cout << endl << "Digite o novo valor" << endl;
-    cin >> resposta;
+    cin.ignore();
+    getline(cin, resposta);
 
     return resposta;
 }
