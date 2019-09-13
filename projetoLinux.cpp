@@ -251,11 +251,11 @@ void exibeRelatorioNotas(int indice, double somaValoresConsiderados, double soma
         double maximoFaltante = ((pesoDesconsiderado *10)/(pesoConsiderado+pesoDesconsiderado));
 
         if (media >= mediaAprovacaoPadrao){
-            cout << "Parabens voce esta aprovado com media: " << media << ",caso voce tire 0 nas proximas notas" << endl;
+            cout << "'Parabens' :D voce esta aprovado com media: " << media << ",caso voce tire 0 nas proximas notas" << endl;
             cout << "Caso voce tire 100% nas proximas provas, sua media sera: " << media + maximoFaltante << endl;
         }
         else if ((media + maximoFaltante) >= mediaAprovacaoPadrao){
-            cout << "Voce ainda nao foi aprovado, entretanto voce tem que acumular no minimo: " << mediaAprovacaoPadrao - media << ", para ser aprovado." << endl;
+            cout << "Voce ainda nao foi 'aprovado', entretanto voce tem que acumular no minimo: " << mediaAprovacaoPadrao - media << ", para ser aprovado." << endl;
             cout << "Podendo ter no maximo a media de: " << maximoFaltante + media << endl;
         }
 
@@ -263,11 +263,11 @@ void exibeRelatorioNotas(int indice, double somaValoresConsiderados, double soma
 
             if (media+maximoFaltante < mediaAprovacaoFinal){
 
-                cout << "Voce ja esta reprovado" << endl;
+                cout << "VISHI!! :( Voce ja esta 'Reprovado'" << endl;
             }
             else{
 
-                cout << "Voce ja esta na final" << endl;
+                cout << "CUIDADO!! :O Voce ja esta na 'Final'" << endl;
             }
         }
 
@@ -281,7 +281,7 @@ int confirmaFechamento(){
 
     char resposta;
 
-    cout << "Digite (s) para encerrar a execucao" << endl;
+    cout << "Digite (s) para encerrar a execucao ou (w) para voltar para o menu" << endl;
     cin >> resposta;
 
     // caso o usuario confirme digitando s envia -1 simbolizando o fim da execução
@@ -290,7 +290,9 @@ int confirmaFechamento(){
         system("clear");
         cout << "Ate mais";
         return -1;
-    }
+    }else{
+		return 1;
+	}
 
     return 1;
 }
@@ -518,35 +520,35 @@ int exibeDisciplinas(char parametro)
 vector<nota> cadastraNota(){
 	vector<nota> notas;
 	string resposta;
-	cout << "Deseja sistema de notas padrão? (Y/n) ";
+	cout << "\nDeseja sistema de notas padrão? (Y/n) \n";
 	getline(cin, resposta);
 	if(resposta == "y" || resposta == "Y"){
 		nota nota1;
-		nota1.nomeNota = "Primeira Nota: ";
+		nota1.nomeNota = "\nPrimeira Nota: ";
 		nota1.nota = 0;
 		nota1.peso = 1.0/3.0;
 		nota1.dadoUsavel = false;
 		notas.push_back(nota1);
-		nota1.nomeNota = "Segunda Nota: ";
+		nota1.nomeNota = "\nSegunda Nota: ";
 		notas.push_back(nota1);
-		nota1.nomeNota = "Terceira Nota: ";
+		nota1.nomeNota = "\nTerceira Nota: ";
 		notas.push_back(nota1);
 	}else{
 		int numNotas;
 		string newNota;
 		double pesoNota;
 		nota novaNota;
-		cout << "Qual o numero de notas: \n";
+		cout << "\nQual o numero de notas que vc deseja cadastrar: \n";
 		cin >> numNotas;
 
 		for (int i = 0; i < numNotas; i++)
 		{
-			cout << "Qual o nome da Nota " << i+1 << ": " << endl;
+			cout << "\nQual o nome da Nota " << i+1 << ": " << endl;
 
 			cin.ignore();
 			getline(cin, newNota);
 
-			cout << "Qual o peso da Nota " << i+1 << ": " << endl;
+			cout << "\nQual o peso da Nota " << i+1 << ": " << endl;
 			cin >> pesoNota;
 			novaNota.nomeNota = newNota;
 			novaNota.peso = pesoNota;
@@ -566,15 +568,15 @@ void cadastraDisciplina(){
 
 	disciplina newDisciplina;
 
-	cout << "Digite o nome da disciplina: \n";
+	cout << "\nDigite o nome da disciplina: \n";
 	getline(cin, nomeDisciplina);
 	newDisciplina.nome = nomeDisciplina;
 
-	cout << "Digite o nome do professor: \n";
+	cout << "\nDigite o nome do professor: \n";
 	getline(cin, professor);
 	newDisciplina.professor = professor;
 
-	cout << "Digite o nome da sala: \n";
+	cout << "\nDigite o numero da sala: \n";
 	getline(cin, sala);
 	newDisciplina.sala = sala;
 
@@ -647,6 +649,52 @@ int exibeConfiguracoes()
 	}
 }
 
+int exibeTutorial()
+{
+	char keyPressed;
+	vector<string> lista;
+	int posIndicador;
+	lista.push_back(indicadorVazio);
+
+    if (lista.size() != 0){
+
+        lista[0] = indicador;
+        posIndicador = 0;
+    }
+
+	while(1)
+	{
+		system("clear");
+		cout << "Tutorial do App de Gerenciamento: " << endl << endl;
+		cout << "Para se Locomover no aplicativo utilize as teclas {W,A,S,D}" << endl;
+		cout << "-----------------------------------------------------------" << endl;
+		cout << "W - Faz com que o curso se mova para cima" << endl;
+		cout << "A - Volta para a pagina anterio"<<endl;
+		cout << "S - Faz com que o curso se mova para baixo" << endl;
+		cout << "D - Passa para a proxima Pagina" << endl;
+		cout << "-----------------------------------------------------------" << endl << endl;
+		cout << "Disciplina: " << endl;
+		cout << "-----------------------------------------------------------" << endl;
+		cout << "Ao acessar a pagina Disciplina você será direcionado para o local onde\nficará amazenado todas as suas Disciplinas e para acessá-las basta com as\nteclas selecionadas escolher qual Disciplina você deseja vizualizar e clicar 'D',\ndentro da disciplina selecionada você pode cadastrar as notas e o programa lhe\ndirar sua situcação na disciplina." << endl;	
+		cout << "-----------------------------------------------------------" << endl<<endl;
+		cout << "Configurações: " << endl;
+		cout << "-----------------------------------------------------------" << endl;
+		cout << "Ao acessar a pagina de Configuraçoes, você será direcionado para 4 opções\nde configuraçoes onde podera cadastrar, atualizar ou remover a disciplina\n\nCadastrar Disciplina: Ao selecionar a opção de castrar disciplina\nserá peguntados informações basicas sobre a disciplina.\n\nAtualizar Disciplina: Caso deseja que a disciplina já cadastrada mude alguma\ninformação basta atualizala\n\nRemover Disciplina: Remove uma Disciplina já cadastrada\n\nReset: Irá resetar todo o programa."<<endl;
+		cout << "-----------------------------------------------------------" << endl << endl;
+		cout << "Então você já estar preparado para se organizar durante seu período?\nEntão vamos lá, basta apenas clicar 'A' para voltar a pagina inicial e cadastrar suas disciplinas." << endl;
+		keyPressed = getch();
+
+		if (int(keyPressed) == int('a'))
+		{
+			return 1;
+		}
+		
+	}
+
+}
+
+
+
 void run()
 {
 
@@ -655,14 +703,15 @@ void run()
 	int posIndicador = 0;
 	lista.push_back(indicador);
 	lista.push_back(indicadorVazio);
-
+	lista.push_back(indicadorVazio);	
 
 	while (1)
 	{
         system("clear");
 		cout << lista[0] << " Disciplinas" << endl;
 		cout << lista[1] << " Configuracoes" << endl;
-
+		cout << lista[2] << " Tutorial" << endl;
+		
 		keyPressed = getch();
 		cout << keyPressed << endl;
 		if (int(keyPressed) == int('s'))
@@ -697,13 +746,18 @@ void run()
 					return;
 				}
 			}
-			else
+			else if (posIndicador == 1)
 			{
 				if (exibeConfiguracoes() == -1)
 				{
 					return;
 				}
+			}else{
+				if(exibeTutorial() == -1){
+					return;
+				}	
 			}
+
 		}
 
 		else if (int(keyPressed) == int('a'))
