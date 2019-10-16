@@ -198,7 +198,7 @@ changeNota ((Disciplina a b c notas):os) disciplina nota contador novoNome
    | otherwise = (Disciplina a b c notas) : changeNota os disciplina nota (contador+1) novoNome
 
 getNovoNomeNota :: IO String
-getNovoNome = do 
+getNovoNomeNota = do 
    putStrLn("digite um novo nome")
    hSetEcho stdin True
    x <- getLine
@@ -213,7 +213,7 @@ doDisciplinaScreen disciplinas compromissos disciplina cursorx cursory action
    | action == "\ESC[D" && cursory == 0 = disciplinasScreen disciplinas compromissos 0
    | action == "\ESC[D" && cursory /= 0 = disciplinaScreen disciplinas compromissos disciplina cursorx (cursory-1)
    | action == "a" && cursory == 0 = do
-      x <- getNovoNome
+      x <- getNovoNomeNota
       disciplinaScreen (changeNota disciplinas disciplina cursorx 0 x) compromissos disciplina cursorx cursory 
    | otherwise = disciplinaScreen disciplinas compromissos disciplina cursorx cursory
                                                             
