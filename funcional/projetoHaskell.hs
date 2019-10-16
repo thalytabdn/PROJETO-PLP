@@ -106,8 +106,12 @@ mainScreen disciplinas compromissos cursor = do
    doMainScreen disciplinas compromissos cursor action
 
 
-endRun :: IO ()
-endRun = do
+endRun :: Disciplinas -> Compromissos -> IO ()
+endRun disciplinas compromissos = do
+   arq <- openFile "Arquivos/Disciplinas.txt" WriteMode
+   hPutStrLn arq (show (disciplinas))
+   hClose arq
+
    system "clear"
    putStrLn("Obrigado por Utilizar")
    pause <- getKey
@@ -115,7 +119,7 @@ endRun = do
    putStr ""
 
 doExitScreen :: Disciplinas -> Compromissos -> String -> IO ()
-doExitScreen disciplinas compromissos action | action == "s" = endRun
+doExitScreen disciplinas compromissos action | action == "s" = endRun disciplinas compromissos
                                              | otherwise = mainScreen disciplinas compromissos 0
     
 exitScreen :: Disciplinas -> Compromissos -> IO ()
@@ -293,5 +297,4 @@ put = do
 main :: IO ()
 main = do
 
-   put
    run
