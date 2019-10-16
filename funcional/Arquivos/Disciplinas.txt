@@ -1,0 +1,1 @@
+[Disciplina "dd" "gg" "uu" [Nota 0.33 0.0 "ii" True,Nota 0.33 0.0 "ii" True,Nota 0.0 0.33 "ii" True],Disciplina "dd1" "gg" "uu" [Nota 0.0 0.0 "ii" True],Disciplina "dd2" "gg" "uu" [Nota 0.0 0.0 "ii" True]]
