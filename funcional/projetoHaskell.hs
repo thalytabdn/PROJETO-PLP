@@ -3,6 +3,7 @@ import Control.Exception
 import System.IO.Error 
 import System.Process
 import Control.Monad (when)
+import Text.Printf
 
 type Peso = Double
 type Pontos = Double
@@ -369,25 +370,42 @@ checaPesoTotalValido pc pd = (abs (100 - (pc + pd))) <= 0.1
 
 relatorioNotasCompleto :: Double -> IO ()
 relatorioNotasCompleto media 
-   | media >= mediaAprovacaoPadrao = do putStrLn ("'Parabens' :D voce esta aprovado, com media: " ++ (show(media)))
+   | media >= mediaAprovacaoPadrao = do
+       putStr ("'Parabens' :D voce esta aprovado, com media: ")
+       printf "%.2f\n" media
    
    | media < mediaMinimaFinal = do putStrLn "VISHI!! :( Voce ja esta 'Reprovado'"
    
    | otherwise = do
       let nFinalMaxima = getNotaMaximaFinal(media)
       let nFinalMinima = getNotaMinimaFinal (media)
-      putStrLn("Voce esta na final precisando de: " ++ (show nFinalMinima) ++ " para ser aprovado.\n")
-      putStrLn("Podendo ter media maxima de: " ++ (show nFinalMaxima) ++ " caso tire 10 na final\n")
+      putStr("Voce esta na final precisando de: ") 
+      printf "%.2f\n" nFinalMinima
+      putStrLn(" para ser aprovado.\n")
+
+      putStr("Podendo ter media maxima de: ")
+      printf "%.2f\n" nFinalMaxima
+      putStrLn ("caso tire 10 na final\n")
 
 relatorioNotasParcial :: Double -> Double -> IO ()
 relatorioNotasParcial maximoFaltante media 
    | (media >= mediaAprovacaoPadrao) = do
-      putStrLn("'Parabens' :D voce esta aprovado com media: " ++ (show media) ++ ",caso voce tire 0 nas proximas notas\n")
-      putStrLn("Caso voce tire 100% nas proximas provas, sua media sera: " ++ (show(media + maximoFaltante))++ "\n")
+      putStr("'Parabens' :D voce esta aprovado com media: ")
+      printf "%.2f\n" media
+      putStrLn (",caso voce tire 0 nas proximas notas\n")
+
+      putStr("Caso voce tire 100% nas proximas provas, sua media sera: ")
+      printf "%.2f\n" (media + maximoFaltante)
+      putStrLn("\n")
 
    | media < mediaAprovacaoPadrao && ((media + maximoFaltante) >= mediaAprovacaoPadrao) = do
-      putStrLn("Voce ainda nao foi 'aprovado', entretanto voce tem que acumular no minimo: " ++ (show (mediaAprovacaoPadrao - media)) ++ ", para ser aprovado.\n")
-      putStrLn("Podendo ter no maximo a media de: " ++ (show (maximoFaltante + media)) ++ "\n")
+      putStr("Voce ainda nao foi 'aprovado', entretanto voce tem que acumular no minimo: ")
+      printf "%.2f\n" (mediaAprovacaoPadrao - media) 
+      putStrLn(", para ser aprovado.\n")
+
+      putStr("Podendo ter no maximo a media de: ")
+      printf "%.2f\n" (maximoFaltante + media) 
+      putStrLn ("\n")
 
    | otherwise = do
       if (media+maximoFaltante < mediaAprovacaoFinal) then
