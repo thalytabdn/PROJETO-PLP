@@ -57,14 +57,6 @@ getKey = reverse <$> getKey' ""
           char <- getChar
           more <- hReady stdin
           (if more then getKey' else return) (char:chars)
-a1 = do
-  system "clear"
-  putStr("o1")
-
-a2 = do
-  system "clear"
-  putStr("o2")
-
 
 a4 = do
   system "clear"
@@ -77,7 +69,7 @@ getNotasDisciplina (Disciplina a b c notas) = notas
 
 changeMainScreen :: Disciplinas -> Compromissos -> Integer -> IO()
 changeMainScreen disciplinas compromissos cursor | cursor == 0 = do disciplinasScreen disciplinas compromissos 0 
-                                                 | cursor == 1 = do a2            
+                                                 | cursor == 1 = do compromissosScreen disciplinas compromissos 0            
                                                  | cursor == 2 = do configuracoesScreen disciplinas compromissos 0 
                                                  | cursor == 3 = do a4
 
@@ -134,6 +126,10 @@ endRun disciplinas compromissos = do
    hPutStrLn arq (show (disciplinas))
    hClose arq
 
+   arq1 <- openFile "Arquivos/Compromissos.txt" WriteMode
+   hPutStrLn arq1 (show (compromissos))
+   hClose arq1
+
    system "clear"
    putStrLn("Obrigado por Utilizar")
    pause <- getKey
@@ -154,17 +150,18 @@ exitScreen disciplinas compromissos = do
    action <- getKey
    doExitScreen disciplinas compromissos action
 
-changeConfiguracoesScreen :: Integer -> IO()
-changeConfiguracoesScreen 0 = do a1
-changeConfiguracoesScreen 1 = do a2
-changeConfiguracoesScreen 2 = do a2
-changeConfiguracoesScreen 3 = do a4
+changeConfiguracoesScreen :: Disciplinas -> Compromissos -> Integer -> IO()
+changeConfiguracoesScreen disciplinas compromissos cursor
+   | cursor == 0 = cadastroDisciplinaScreen disciplinas compromissos
+   | cursor == 1 = alteraDisciplinasScreen disciplinas compromissos 0
+   | cursor == 2 = excluiDisciplinasScreen disciplinas compromissos 0
+
 
 doConfiguracoesScreen :: Disciplinas -> Compromissos -> Integer -> [Char] -> IO()
 doConfiguracoesScreen disciplinas compromissos cursor action | action == "\ESC[B" = configuracoesScreen disciplinas compromissos ((cursor+1) `mod` 4)
                                                     | action == "\ESC[A" && cursor /= 0 = configuracoesScreen disciplinas compromissos (cursor-1)
                                                     | action == "\ESC[A" && cursor == 0 = configuracoesScreen disciplinas compromissos 3
-                                                    | action == "\ESC[C" = changeConfiguracoesScreen cursor
+                                                    | action == "\ESC[C" = changeConfiguracoesScreen disciplinas compromissos cursor
                                                     | action == "\ESC[D" = mainScreen disciplinas compromissos 0
                                                     | otherwise = configuracoesScreen disciplinas compromissos cursor
 
@@ -265,12 +262,77 @@ changeConsiderarNota ((Disciplina a b c notas):os) disciplina nota contador
    | contador == disciplina = (Disciplina a b c (changeConsiderarNotaDisciplina notas nota 0 )) : changeConsiderarNota os disciplina nota (contador+1) 
    | otherwise = (Disciplina a b c notas) : changeConsiderarNota os disciplina nota (contador+1) 
 ---------------------------------------------------
+
+getTituloCompromisso :: IO String
+getTituloCompromisso = do
+   putStrLn("\nDigite um compromisso")
+   hSetBuffering stdin LineBuffering
+   hSetEcho stdin True
+   x <- getLine
+   return x
+
+getDetalhesCompromisso :: IO String
+getDetalhesCompromisso = do
+   putStrLn("\nDigite os detalhes do compromisso")
+   hSetBuffering stdin LineBuffering
+   hSetEcho stdin True
+   x <- getLine
+   return x
+
+getPrioridadeCompromisso :: IO String
+getPrioridadeCompromisso = do
+   putStrLn("\nDigite a prioridade do compromisso")
+   hSetBuffering stdin LineBuffering
+   hSetEcho stdin True
+   x <- getLine
+   return x
+
+getStatusCompromisso :: IO String
+getStatusCompromisso = do
+   putStrLn("\nDigite a prioridade do compromisso")
+   hSetBuffering stdin LineBuffering
+   hSetEcho stdin True
+   x <- getLine
+   return x
+
 getNovoNomeNota :: IO String
 getNovoNomeNota = do 
    putStrLn("\nDigite um novo nome")
    hSetBuffering stdin LineBuffering
    hSetEcho stdin True
    x <- getLine
+   return x
+
+getNovoNomeDisciplina :: IO String
+getNovoNomeDisciplina = do 
+   putStrLn("\nDigite um novo nome disciplina")
+   hSetBuffering stdin LineBuffering
+   hSetEcho stdin True
+   x <- getLine
+   return x
+
+getNovoProfessorDisciplina :: IO String
+getNovoProfessorDisciplina = do 
+   putStrLn("\nDigite um novo nome professor")
+   hSetBuffering stdin LineBuffering
+   hSetEcho stdin True
+   x <- getLine
+   return x
+
+getNovaSalaDisciplina :: IO String
+getNovaSalaDisciplina = do 
+   putStrLn("\nDigite um novo nome sala")
+   hSetBuffering stdin LineBuffering
+   hSetEcho stdin True
+   x <- getLine
+   return x
+
+getNovoNumerosNotas :: IO Integer
+getNovoNumerosNotas = do 
+   putStrLn("\nDigite um novo valor de nota")
+   hSetBuffering stdin LineBuffering
+   hSetEcho stdin True
+   x <- readLn
    return x
 
 getNovoValorNota :: IO Double
@@ -450,8 +512,352 @@ disciplinaScreen disciplinas compromissos disciplina cursorx cursory = do
    
    doDisciplinaScreen disciplinas compromissos disciplina cursorx cursory action
 
+
+
+changeTituloCompromisso :: Compromissos -> Integer -> Integer -> String -> Compromissos 
+changeTituloCompromisso [] _ _ _ = []
+changeTituloCompromisso ((Compromisso titulo detalhe prioridade status):os) compromisso contador novoValor 
+   | contador == compromisso = (Compromisso novoValor detalhe prioridade status) : changeTituloCompromisso os compromisso (contador+1) novoValor
+   | otherwise = Compromisso titulo detalhe prioridade status : changeTituloCompromisso os compromisso (contador+1) novoValor
+
+changeDetalheCompromisso :: Compromissos -> Integer -> Integer -> String -> Compromissos 
+changeDetalheCompromisso [] _ _ _ = []
+changeDetalheCompromisso ((Compromisso titulo detalhe prioridade status):os) compromisso contador novoValor 
+   | contador == compromisso = (Compromisso titulo novoValor prioridade status) : changeDetalheCompromisso os compromisso (contador+1) novoValor
+   | otherwise = Compromisso titulo detalhe prioridade status : changeDetalheCompromisso os compromisso (contador+1) novoValor
+
+changePrioridadeCompromisso :: Compromissos -> Integer -> Integer -> String -> Compromissos 
+changePrioridadeCompromisso [] _ _ _ = []
+changePrioridadeCompromisso ((Compromisso titulo detalhe prioridade status):os) compromisso contador novoValor 
+   | contador == compromisso = (Compromisso titulo detalhe novoValor status) : changePrioridadeCompromisso os compromisso (contador+1) novoValor
+   | otherwise = Compromisso titulo detalhe prioridade status : changePrioridadeCompromisso os compromisso (contador+1) novoValor
+
+changeStatusCompromisso :: Compromissos -> Integer -> Integer -> String -> Compromissos 
+changeStatusCompromisso [] _ _ _ = []
+changeStatusCompromisso ((Compromisso titulo detalhe prioridade status):os) compromisso contador novoValor 
+   | contador == compromisso = (Compromisso titulo detalhe prioridade novoValor) : changeStatusCompromisso os compromisso (contador+1) novoValor
+   | otherwise = Compromisso titulo detalhe prioridade status : changeStatusCompromisso os compromisso (contador+1) novoValor
+
+changeNomeDisciplina :: Disciplinas -> Integer -> Integer -> String -> Disciplinas
+changeNomeDisciplina [] disciplina contador novoValor = []
+changeNomeDisciplina ((Disciplina a b c notas):os) disciplina contador novoValor 
+   | contador == disciplina = (Disciplina novoValor b c notas) : changeNomeDisciplina os disciplina  (contador+1) novoValor
+   | otherwise = (Disciplina a b c notas) : changeNomeDisciplina os disciplina (contador+1) novoValor
+
+changeProfessorDisciplina :: Disciplinas -> Integer -> Integer -> String -> Disciplinas
+changeProfessorDisciplina [] disciplina contador novoValor = []
+changeProfessorDisciplina ((Disciplina a b c notas):os) disciplina contador novoValor 
+   | contador == disciplina = (Disciplina a novoValor c notas) : changeProfessorDisciplina os disciplina  (contador+1) novoValor
+   | otherwise = (Disciplina a b c notas) : changeProfessorDisciplina os disciplina (contador+1) novoValor
+
+changeSalaDisciplina :: Disciplinas -> Integer -> Integer -> String -> Disciplinas
+changeSalaDisciplina [] disciplina contador novoValor = []
+changeSalaDisciplina ((Disciplina a b c notas):os) disciplina contador novoValor 
+   | contador == disciplina = (Disciplina a b novoValor notas) : changeSalaDisciplina os disciplina  (contador+1) novoValor
+   | otherwise = (Disciplina a b c notas) : changeSalaDisciplina os disciplina (contador+1) novoValor
+
+getNotaNula :: String -> Nota
+getNotaNula nome = (Nota 0 0 nome False)
+
+geraNotasNulas :: Integer -> Integer -> Notas
+geraNotasNulas numi num 
+   | num /= 0 = (getNotaNula ("Nota "++show(numi))):(geraNotasNulas (numi+1) (num-1))
+   | otherwise = [] 
+
+tirarNotas :: Notas -> Integer -> Notas
+tirarNotas (o:os) num
+   | num /= 0 = o:(tirarNotas os (num-1))
+   | num == 0 = []
+
+changeNumeroNotas :: Notas -> Integer -> Integer -> Notas
+changeNumeroNotas notas tam valor 
+   | valor > tam = notas ++ (geraNotasNulas (tam+1) (valor - tam))
+   | valor < tam = tirarNotas notas valor
+   | otherwise = notas
+
+changeNumeroNotasDisciplina :: Disciplinas -> Integer -> Integer -> Integer -> Disciplinas   
+changeNumeroNotasDisciplina [] disciplina contador novoValor = []
+changeNumeroNotasDisciplina ((Disciplina a b c notas):os) disciplina contador novoValor 
+   | contador == disciplina = (Disciplina a b c (changeNumeroNotas notas (toInteger(length notas)) novoValor) ):(changeNumeroNotasDisciplina os disciplina (contador+1) novoValor)
+   | otherwise = (Disciplina a b c notas):(changeNumeroNotasDisciplina os disciplina (contador+1) novoValor)
+
+retornaCursor :: Integer -> Integer -> String 
+retornaCursor cursor actual 
+   | cursor == actual = "->"
+   | cursor /= actual = "  "             
+ 
+showAlteraDisciplinaScreen :: Disciplina -> Integer -> IO ()
+showAlteraDisciplinaScreen (Disciplina a b c d) cursor = do 
+   putStrLn ("Escolha as informacoes para alterar")
+   putStrLn ((retornaCursor cursor 0) ++" Nome disciplina: " ++ a)
+   putStrLn ((retornaCursor cursor 1) ++" Nome professor: " ++ b)
+   putStrLn ((retornaCursor cursor 2) ++" Sala: " ++ c)
+   putStrLn ((retornaCursor cursor 3) ++" Quantidade Notas: " ++ show(length d))
+
+
    
+doAlteraDisciplinaScreen :: Disciplinas -> Compromissos -> Integer -> Integer -> String -> IO ()  
+doAlteraDisciplinaScreen disciplinas compromissos disciplina cursor action 
+   | action == "\ESC[B" = alteraDisciplinaScreen disciplinas compromissos disciplina ((cursor+1) `mod` 4)
+   | action == "\ESC[A" && cursor /=  0 = alteraDisciplinaScreen disciplinas compromissos disciplina (cursor-1)
+   | action == "\ESC[A" && cursor ==  0 = alteraDisciplinaScreen disciplinas compromissos disciplina 3
+   | action == "\ESC[C" && cursor == 0 = do
+       novoValor <- getNovoNomeDisciplina 
+       alteraDisciplinaScreen (changeNomeDisciplina disciplinas disciplina 0 novoValor) compromissos disciplina cursor 
+   | action == "\ESC[C" && cursor == 1 = do
+       novoValor <- getNovoProfessorDisciplina 
+       alteraDisciplinaScreen (changeProfessorDisciplina disciplinas disciplina 0 novoValor) compromissos disciplina cursor 
+   | action == "\ESC[C" && cursor == 2 = do
+       novoValor <- getNovaSalaDisciplina 
+       alteraDisciplinaScreen (changeSalaDisciplina disciplinas disciplina 0 novoValor) compromissos disciplina cursor 
+   | action == "\ESC[C" && cursor == 3 = do
+       novoValor <- getNovoNumerosNotas
+       alteraDisciplinaScreen (changeNumeroNotasDisciplina disciplinas disciplina 0 novoValor) compromissos disciplina cursor 
+   | action == "\ESC[D" = alteraDisciplinasScreen disciplinas compromissos 0
+   | otherwise = alteraDisciplinaScreen disciplinas compromissos disciplina cursor
+ 
+alteraDisciplinaScreen :: Disciplinas -> Compromissos -> Integer -> Integer -> IO () 
+alteraDisciplinaScreen disciplinas compromissos disciplina cursor = do
+   system "clear"
+   showAlteraDisciplinaScreen (disciplinas !! (fromInteger disciplina)) cursor
+
+   hSetBuffering stdin NoBuffering
+   hSetEcho stdin False
+   action <- getKey
+ 
+   doAlteraDisciplinaScreen disciplinas compromissos disciplina cursor action
+ 
+doAlteraDisciplinasScreen :: Disciplinas -> Compromissos -> Integer -> String -> IO ()  
+doAlteraDisciplinasScreen disciplinas compromissos cursor action 
+   | action == "\ESC[B" = alteraDisciplinasScreen  disciplinas compromissos ((cursor+1) `mod` toInteger(length disciplinas))
+   | action == "\ESC[A" && cursor /=  0 = alteraDisciplinasScreen disciplinas compromissos (cursor-1)
+   | action == "\ESC[A" && cursor ==  0 = alteraDisciplinasScreen disciplinas compromissos (toInteger(length disciplinas) -1)
+   | action == "\ESC[C" = alteraDisciplinaScreen disciplinas compromissos cursor 0
+   | action == "\ESC[D" = configuracoesScreen disciplinas compromissos 0
+   | otherwise = alteraDisciplinasScreen disciplinas compromissos cursor
+ 
+alteraDisciplinasScreen :: Disciplinas -> Compromissos -> Integer -> IO ()
+alteraDisciplinasScreen disciplinas compromissos cursor = do
+   system "clear"
+   showDisciplinasScreen disciplinas cursor 0
+ 
+   hSetBuffering stdin NoBuffering
+   hSetEcho stdin False
+   action <- getKey
+ 
+   doAlteraDisciplinasScreen disciplinas compromissos cursor action
+
+excluiDisciplina :: Disciplinas -> Integer -> Integer -> Disciplinas 
+excluiDisciplina [] _ _ = []
+excluiDisciplina (o:os) cursor contador
+   | cursor == contador = excluiDisciplina os cursor (contador+1)
+   | otherwise = o:excluiDisciplina os cursor (contador+1)
+
+
+
+doExcluiDisciplinasScreen :: Disciplinas -> Compromissos -> Integer -> String -> IO ()
+doExcluiDisciplinasScreen disciplinas compromissos cursor action 
+   | action == "\ESC[B" = excluiDisciplinasScreen disciplinas compromissos  ((cursor+1) `mod` toInteger(length disciplinas))
+   | action == "\ESC[A" && cursor /=  0 = excluiDisciplinasScreen disciplinas compromissos  (cursor-1)
+   | action == "\ESC[A" && cursor ==  0 = excluiDisciplinasScreen disciplinas compromissos  (toInteger(length disciplinas) -1)
+   | action == "\ESC[C" && (length disciplinas) > 0 = do
+     
+      putStrLn ("\nSe voce realmente deseja excluir esta disciplina entao a aperte (a)")
+      hSetBuffering stdin NoBuffering
+      hSetEcho stdin False
+      action <- getKey
+
+      if (action == "a") then do
+         let newDisciplinas = (excluiDisciplina disciplinas cursor 0)
+         
+         system "clear"
+         putStrLn ("Excluido com sucesso")
+         hSetBuffering stdin NoBuffering
+         hSetEcho stdin False
+         actdion <- getKey
+         putStr ("")
+         excluiDisciplinasScreen newDisciplinas compromissos 0
+      else
+         excluiDisciplinasScreen disciplinas compromissos 0
+   | action == "\ESC[D" = configuracoesScreen disciplinas compromissos 0
+   | otherwise = excluiDisciplinasScreen disciplinas compromissos  cursor
+
+excluiDisciplinasScreen :: Disciplinas -> Compromissos -> Integer -> IO ()
+excluiDisciplinasScreen disciplinas compromissos cursor = do
+   system "clear"
+   showDisciplinasScreen disciplinas cursor 0
+ 
+   hSetBuffering stdin NoBuffering
+   hSetEcho stdin False
+   action <- getKey
+ 
+   doExcluiDisciplinasScreen disciplinas compromissos cursor action
+
+getSistemaNotasPadrao :: Notas 
+getSistemaNotasPadrao = [(Nota 33.33 0 "Nota 1" False ), (Nota 33.33 0 "Nota 2" False ), (Nota 33.33 0 "Nota 3" False )]
+
+
+getSistemaNotas :: String -> Notas
+getSistemaNotas action 
+   | action == "sim" = getSistemaNotasPadrao
+   | action == "nao" = getSistemaNotasPadrao
+
+cadastroDisciplinaScreen :: Disciplinas -> Compromissos -> IO ()
+cadastroDisciplinaScreen disciplinas compromissos = do
+
+   system "clear"
    
+   nome <- getNovoNomeDisciplina
+   professor <- getNovoProfessorDisciplina
+   sala <- getNovaSalaDisciplina
+
+   putStrLn("Voce deseja o sistema de notas padrao? (sim/nao)")
+   
+   hSetBuffering stdin LineBuffering
+   hSetEcho stdin True
+   action <- getLine
+   
+   let nota = getSistemaNotas action
+
+   configuracoesScreen (disciplinas++[(Disciplina nome professor sala nota)]) compromissos 0
+   
+   putStrLn("")
+
+optionsCompromissosFixedScreen :: [String]
+optionsCompromissosFixedScreen = [" CADASTRO"]
+
+optionsCompromissoFixedScreen :: [String]
+optionsCompromissoFixedScreen = [" REMOVER COMPROMISSO"]
+
+optionsCompromissoScreen :: Compromisso -> [String]
+optionsCompromissoScreen (Compromisso titulo detalhe prioridade status) = 
+   [" Titulo   : "++show(titulo),
+    " Detalhes  : " ++ show(detalhe),
+    " Prioridade: " ++ show(prioridade),
+    " Status:   " ++show(status)]
+
+
+optionsCompromissosScreen :: Compromissos -> [String]
+optionsCompromissosScreen [] = []
+optionsCompromissosScreen ((Compromisso titulo detalhe prioridade status):os) = [" Titulo:   "++show(titulo)++"\n   Status:   " ++show(status)]++optionsCompromissosScreen os
+
+removeCompromisso ::Compromissos -> Integer -> Integer -> Compromissos
+removeCompromisso [] _ _ = []
+removeCompromisso (o:os) cursor contador
+   | cursor == contador = removeCompromisso os cursor (contador+1)
+   | otherwise = o:removeCompromisso os cursor (contador+1)
+
+removeCompromissoScreen :: Disciplinas -> Compromissos -> Integer -> IO ()   
+removeCompromissoScreen disciplinas compromissos compromisso = do
+   putStrLn("Caso voce realmente queira excluir aperte (a)")
+
+   hSetBuffering stdin NoBuffering
+   hSetEcho stdin False
+   action <- getKey
+
+   if (action == "a") then do
+      let newCompromissos = (removeCompromisso compromissos compromisso 0)
+      
+      system "clear"
+      putStrLn ("Excluido com sucesso")
+      hSetBuffering stdin NoBuffering
+      hSetEcho stdin False
+      actdion <- getKey
+      putStr ("")
+      compromissosScreen disciplinas (newCompromissos) 0
+   else
+      compromissoScreen disciplinas compromissos compromisso 0
+ 
+alteraCompromissosScreen :: Disciplinas -> Compromissos -> Integer -> Integer -> IO ()
+alteraCompromissosScreen disciplinas compromissos compromisso cursor 
+   | cursor == 0 = do
+      x <- getTituloCompromisso
+      compromissoScreen disciplinas (changeTituloCompromisso compromissos compromisso 0 x) compromisso 0 
+   | cursor == 1 = do
+      x <-  getDetalhesCompromisso
+      compromissoScreen disciplinas (changeDetalheCompromisso compromissos compromisso 0 x) compromisso 0 
+   | cursor == 2 = do
+      x <-  getPrioridadeCompromisso
+      compromissoScreen disciplinas (changePrioridadeCompromisso compromissos compromisso 0 x) compromisso 0 
+   | cursor == 3 = do
+      x <- getStatusCompromisso
+      compromissoScreen disciplinas (changeStatusCompromisso compromissos compromisso 0 x) compromisso 0 
+
+doCompromissoScreen :: Disciplinas -> Compromissos -> Integer -> Integer -> String -> IO ()
+doCompromissoScreen disciplinas compromissos compromisso cursor action 
+    | action == "\ESC[B" = compromissoScreen  disciplinas compromissos compromisso ((cursor+1) `mod` 5)
+    | action == "\ESC[A" && cursor /=  0 = compromissoScreen disciplinas compromissos compromisso (cursor-1)
+    | action == "\ESC[A" && cursor ==  0 = compromissoScreen disciplinas compromissos compromisso (4)
+    | action == "\ESC[C" && cursor == 4  = removeCompromissoScreen disciplinas compromissos compromisso
+    | action == "\ESC[C" && cursor /= 4 = alteraCompromissosScreen disciplinas compromissos compromisso cursor
+    | action == "\ESC[D" = compromissosScreen disciplinas compromissos 0 
+    | otherwise = compromissoScreen disciplinas compromissos compromisso cursor
+
+showCompromissoScreen :: [String] -> Integer -> Integer -> IO ()
+showCompromissoScreen [] cursor contador = putStr("")
+showCompromissoScreen (o:os) cursor contador 
+   | contador == cursor = do
+      putStrLn("->" ++ o)
+      showCompromissoScreen os cursor (contador+1)
+   | otherwise = do 
+      putStrLn("  " ++ o)
+      showCompromissoScreen os cursor (contador+1)
+
+compromissoScreen :: Disciplinas -> Compromissos -> Integer -> Integer -> IO ()   
+compromissoScreen disciplinas compromissos compromisso cursor = do
+
+   system "clear"
+   showCompromissoScreen ((optionsCompromissoScreen (compromissos !! fromInteger(compromisso)))++optionsCompromissoFixedScreen) cursor 0
+   putStr("")
+
+   hSetBuffering stdin NoBuffering
+   hSetEcho stdin False
+   action <- getKey
+
+   doCompromissoScreen disciplinas compromissos compromisso cursor action 
+
+showCompromissosScreen :: [String] -> Integer -> Integer -> IO ()
+showCompromissosScreen [] cursor contador = putStr("")
+showCompromissosScreen (o:os) cursor contador 
+   | contador == cursor = do
+      putStrLn("->" ++ o)
+      showCompromissosScreen os cursor (contador+1)
+   | otherwise = do 
+      putStrLn("  " ++ o)
+      showCompromissosScreen os cursor (contador+1)
+
+cadastroCompromissoScreen :: Disciplinas -> Compromissos -> IO ()
+cadastroCompromissoScreen disciplinas compromissos = do
+
+   system "clear"
+   
+   titulo <- getTituloCompromisso
+   detalhes <- getDetalhesCompromisso
+   prioridade <- getPrioridadeCompromisso
+
+   compromissosScreen disciplinas (compromissos++([(Compromisso titulo detalhes prioridade "Em Andamento")])) 0
+
+doCompromissosScreen :: Disciplinas -> Compromissos -> Integer -> String -> IO ()
+doCompromissosScreen disciplinas compromissos cursor action 
+   | action == "\ESC[B" = compromissosScreen  disciplinas compromissos ((cursor+1) `mod` (toInteger(length compromissos)+1))
+   | action == "\ESC[A" && cursor /=  0 = compromissosScreen disciplinas compromissos (cursor-1)
+   | action == "\ESC[A" && cursor ==  0 = compromissosScreen disciplinas compromissos (toInteger(length compromissos))
+   | action == "\ESC[C" && cursor == 0  = cadastroCompromissoScreen disciplinas compromissos
+   | action == "\ESC[C" && cursor /= 0 = compromissoScreen disciplinas compromissos (cursor-1) 0
+   | action == "\ESC[D" = mainScreen disciplinas compromissos 0
+   | otherwise = compromissosScreen disciplinas compromissos cursor
+
+compromissosScreen :: Disciplinas-> Compromissos -> Integer -> IO ()
+compromissosScreen disciplinas compromissos cursor = do
+
+   system "clear"
+   showCompromissosScreen (optionsCompromissosFixedScreen++(optionsCompromissosScreen compromissos)) cursor 0
+
+   hSetBuffering stdin NoBuffering
+   hSetEcho stdin False
+   action <- getKey
+
+   doCompromissosScreen disciplinas compromissos cursor action
 
 run :: IO ()
 run = do
@@ -471,22 +877,6 @@ run = do
          return ()
       }
       error = ioError 
-
-te1 :: Disciplina
-te1 = (Disciplina "dd" "gg" "uu" [(Nota 0.33 0 "ii" True), (Nota 0.33 0 "ii" True), (Nota 0 0.33 "ii" True)])
-
-te2 :: Disciplina
-te2 = (Disciplina "dd1" "gg" "uu" [(Nota 0 0 "ii" True)])
-
-te3 :: Disciplina
-te3 = (Disciplina "dd2" "gg" "uu" [(Nota 0 0 "ii" True)])
-
-
-put :: IO ()
-put = do 
-   arq <- openFile "Arquivos/Disciplinas.txt" WriteMode
-   hPutStrLn arq (show[te1, te2, te3])
-   hClose arq
 
 main :: IO ()
 main = do
