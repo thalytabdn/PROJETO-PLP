@@ -4,6 +4,7 @@ up(119).
 down(115).
 left(97).
 right(100).
+select(113).
 
 upAction(Cursor, Limit, NewCursor) :-
     Cursor =:= 0,
@@ -16,6 +17,10 @@ downAction(Cursor, Limit, NewCursor) :-
     Max is Limit + 1,
     PC is Cursor + 1,
     NewCursor is PC mod Max.
+
+switch([O|Os], Item, Pos, Cont, NewO) :-
+    (Pos =:= Cont -> NewO = [Item|Os];
+     Cont2 is Cont + 1, switch(Os, Item, Pos, Cont2, NewO2), NewO = [O|NewO2]).
 
 showOptions([], _, _).
 showOptions([A|As], N, N) :- 
@@ -36,6 +41,22 @@ listNomesDisciplinas([[Nome|Resto]|Ds], ListaOpcoes) :-
     ListaOpcoes = [Nome|ListaOpcoes2].
 
 /* funcoes uteis a mais de uma tela--*/
+
+/* funcoes de entrada de dados--*/
+
+getString(FinalInput, Mensagem) :-
+    write("\n"),
+    writeln(Mensagem),
+    read_line_to_codes(user_input, Entrada), atom_string(Entrada, Return),
+    FinalInput = Return.
+
+getDouble(FinalInput, Mensagem) :-
+    write("\n"),
+    writeln(Mensagem),
+    read(Return),
+    FinalInput = Return.
+
+/*-- funcoes de entrada de dados*/
 
 /*-- tela principal*/
 optionsMainScreen([" Disciplinas", " Compromissos", " Configuracoes", " Tutorial"]).
@@ -82,7 +103,7 @@ doAcessoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, Cursor, Action) :
     (up(Action) -> length(ListaDisciplinas, Tam), Tamanho is Tam-1, upAction(Cursor, Tamanho, NewCursor), acessoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, NewCursor);
      down(Action) -> length(ListaDisciplinas, Tam), Tamanho is Tam-1, downAction(Cursor, Tamanho, NewCursor), acessoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, NewCursor);
      left(Action) -> mainScreen(ListaCompromissos, ListaDisciplinas, 0);
-     right(Action) -> nth0(Cursor, ListaDisciplinas, Disciplina), disciplinaScreen(ListaCompromissos, ListaDisciplinas, 0 , 0, Disciplina);
+     right(Action) -> disciplinaScreen(ListaCompromissos, ListaDisciplinas, 0 , 0, Cursor);
      acessoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, Cursor)
     ).
 
@@ -115,20 +136,53 @@ showDisciplinaScreen(Nome, Sala, Professor, Notas, CursorX, CursorY) :-
     showDisciplinaHeader(Nome, Sala, Professor),
     showDisciplinaContent(Notas, CursorX, CursorY, 0).
 
-doDisciplinasScreen(ListaCompromissos, ListaDisciplinas, CursorX, CursorY, [Nome,Sala,Professor,Notas], Action) :-
-    (up(Action) -> length(Notas, Tam), Tamanho is Tam-1, upAction(CursorY, Tamanho, NewCursorY), disciplinaScreen(ListaCompromissos, ListaDisciplinas, CursorX, NewCursorY, [Nome,Sala,Professor,Notas]);
-     down(Action) -> length(Notas, Tam), Tamanho is Tam-1, downAction(CursorY, Tamanho, NewCursorY), disciplinaScreen(ListaCompromissos, ListaDisciplinas, CursorX, NewCursorY, [Nome,Sala,Professor,Notas]);
+getNewNomeNota([Nome,Sala,Professor,Notas], CursorY, NewDisciplina) :-
+    nth0(CursorY, Notas, [Nome1, Peso1, Valor1,Considerar1]),
+    getString(Input, "Digite o novo nome da nota"),
+    switch(Notas, [Input, Peso1, Valor1, Considerar1], CursorY, 0, NewNotas),
+    NewDisciplina = [Nome,Sala,Professor,NewNotas].
+
+getNewPesoNota([Nome,Sala,Professor,Notas], CursorY, NewDisciplina) :-
+    nth0(CursorY, Notas, [Nome1, Peso1, Valor1,Considerar1]),
+    getDouble(Input, "Digite o novo peso da nota"),
+    switch(Notas, [Nome1, Input, Valor1, Considerar1], CursorY, 0, NewNotas),
+    NewDisciplina = [Nome,Sala,Professor,NewNotas].
+
+getNewValorNota([Nome,Sala,Professor,Notas], CursorY, NewDisciplina) :-
+    nth0(CursorY, Notas, [Nome1, Peso1, Valor1,Considerar1]),
+    getDouble(Input, "Digite o novo valor da nota"),
+    switch(Notas, [Nome1, Peso1, Input, Considerar1], CursorY, 0, NewNotas),
+    NewDisciplina = [Nome,Sala,Professor,NewNotas].
+
+switchConsiderar(Old, New) :-
+    (Old =:= 0 -> New is 1;
+     New is 0).
+
+getNewConsiderarNota([Nome,Sala,Professor,Notas], CursorY, NewDisciplina) :-
+    nth0(CursorY, Notas, [Nome1, Peso1, Valor1,Considerar1]),
+    switchConsiderar(Considerar1, NewConsiderar),
+    switch(Notas, [Nome1, Peso1, Valor1, NewConsiderar], CursorY, 0, NewNotas),
+    NewDisciplina = [Nome,Sala,Professor,NewNotas].
+
+doDisciplinasScreen(ListaCompromissos, ListaDisciplinas, CursorX, CursorY, [Nome,Sala,Professor,Notas], Action, IndexDisciplina) :-
+    (up(Action) -> length(Notas, Tam), Tamanho is Tam-1, upAction(CursorY, Tamanho, NewCursorY), disciplinaScreen(ListaCompromissos, ListaDisciplinas, CursorX, NewCursorY, IndexDisciplina);
+     down(Action) -> length(Notas, Tam), Tamanho is Tam-1, downAction(CursorY, Tamanho, NewCursorY), disciplinaScreen(ListaCompromissos, ListaDisciplinas, CursorX, NewCursorY, IndexDisciplina);
      left(Action), CursorX =:= 0 -> acessoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, 0);
-     left(Action) -> upAction(CursorX, 3, NewCursorX), disciplinaScreen(ListaCompromissos, ListaDisciplinas, NewCursorX, CursorY, [Nome,Sala,Professor,Notas]);
-     right(Action) -> downAction(CursorX, 3, NewCursorX), disciplinaScreen(ListaCompromissos, ListaDisciplinas, NewCursorX, CursorY, [Nome,Sala,Professor,Notas]);
-     disciplinaScreen(ListaCompromissos, ListaDisciplinas, CursorX, CursorY, [Nome,Sala,Professor,Notas])).   
+     left(Action) -> upAction(CursorX, 3, NewCursorX), disciplinaScreen(ListaCompromissos, ListaDisciplinas, NewCursorX, CursorY, IndexDisciplina);
+     right(Action) -> downAction(CursorX, 3, NewCursorX), disciplinaScreen(ListaCompromissos, ListaDisciplinas, NewCursorX, CursorY, IndexDisciplina);
+     select(Action), CursorX =:= 0 -> getNewNomeNota([Nome,Sala,Professor,Notas], CursorY, NewDisciplina), switch(ListaDisciplinas, NewDisciplina, IndexDisciplina, 0, OI), disciplinaScreen(ListaCompromissos, OI, CursorX, CursorY, IndexDisciplina);
+     select(Action), CursorX =:= 1 -> getNewValorNota([Nome,Sala,Professor,Notas], CursorY, NewDisciplina), switch(ListaDisciplinas, NewDisciplina, IndexDisciplina, 0, OI), disciplinaScreen(ListaCompromissos, OI, CursorX, CursorY, IndexDisciplina);
+     select(Action), CursorX =:= 2 -> getNewPesoNota([Nome,Sala,Professor,Notas], CursorY, NewDisciplina), switch(ListaDisciplinas, NewDisciplina, IndexDisciplina, 0, OI), disciplinaScreen(ListaCompromissos, OI, CursorX, CursorY, IndexDisciplina);
+     select(Action), CursorX =:= 3 -> getNewConsiderarNota([Nome,Sala,Professor,Notas], CursorY, NewDisciplina), switch(ListaDisciplinas, NewDisciplina, IndexDisciplina, 0, OI), disciplinaScreen(ListaCompromissos, OI, CursorX, CursorY, IndexDisciplina);
+     disciplinaScreen(ListaCompromissos, ListaDisciplinas, CursorX, CursorY, IndexDisciplina)).   
     
 
-disciplinaScreen(ListaCompromissos, ListaDisciplinas, CursorX, CursorY, [Nome,Sala,Professor,Notas]) :-
+disciplinaScreen(ListaCompromissos, ListaDisciplinas, CursorX, CursorY, IndexDisciplina) :-
     shell(clear),
+    nth0(IndexDisciplina, ListaDisciplinas, [Nome,Sala,Professor,Notas]), 
     showDisciplinaScreen(Nome, Sala, Professor, Notas, CursorX, CursorY),
     get_single_char(Action),
-    doDisciplinasScreen(ListaCompromissos, ListaDisciplinas, CursorX, CursorY, [Nome,Sala,Professor,Notas], Action).
+    doDisciplinasScreen(ListaCompromissos, ListaDisciplinas, CursorX, CursorY, [Nome,Sala,Professor,Notas], Action, IndexDisciplina).
 /* tela de uma disciplina --*/
 
 a([["ozocaba", "babaca", "zocaro", [["poi", 100.00, 100, 1], ["poi", 100.00, 100, 1]]], ["ozocaba", "babaca", "zocaro", [["poi", 100.00, 100, 1]]]]).
