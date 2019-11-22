@@ -169,8 +169,13 @@ relatorioNotasCompleto(MediaConsiderada) :-
 
 relatorioNotasParcial(MaximoFaltante, MediaConsiderada) :-
     mediaAprovacaoPadrao(MAP),
+    mediaAprovacaoFinal(MAF),
     MM is MediaConsiderada + MaximoFaltante,
-    write("MMM").
+    (MediaConsiderada >= MAP -> write("'Parabens' :D voce esta aprovado com media: "), write(MediaConsiderada), writeln(",caso voce tire 0 nas proximas notas\n"), write("Caso voce tire 100% nas proximas provas, sua media sera: "), writeln(MM);
+     MediaConsiderada < MAP, MM >= MAP -> MN is MAP - MediaConsiderada, write("Voce ainda nao foi 'aprovado', entretanto voce tem que acumular no minimo: "), write(MN), writeln(", para ser aprovado.\n"), write("Podendo ter no maximo a media de: "), writeln(MM);
+     (MM < MAF -> writeln("VISHI!! :( Voce ja esta 'Reprovado'\n");
+      writeln("CUIDADO!! :O Voce ja esta na 'Final'\n"))).
+
 
 relatorioNotas(PesoConsiderado, PesoDesconsiderado, ValorConsiderado, ValorDesconsiderado, MediaConsiderada) :- 
     (PesoDesconsiderado =:= 0 -> relatorioNotasCompleto(MediaConsiderada);
