@@ -53,6 +53,11 @@ remove([O|Os], Pos, Cont, NewO) :-
     (Pos =:= Cont -> NewO = Os;
      Cont2 is Cont1 + 1, remove(O, Pos, Cont2, NewO2), NewO = [O|NewO2]).
 
+add([], Item, NewO) :-
+    NewO = Item.
+add([O|Os], Item, NewO) :-
+    add(Os, Item, NewO2), NewO = [O|NewO2].
+
 showOptions([], _, _).
 showOptions([A|As], N, N) :- 
     write("->"),
@@ -122,6 +127,7 @@ doConfiguracoesScreen(ListaCompromissos, ListaDisciplinas, Cursor, Action) :-
     (up(Action) -> upAction(Cursor, 3, NewCursor), configuracoesScreen(ListaCompromissos, ListaDisciplinas, NewCursor);
      down(Action) -> downAction(Cursor, 3, NewCursor), configuracoesScreen(ListaCompromissos, ListaDisciplinas, NewCursor);
      left(Action) -> mainScreen(ListaCompromissos, ListaDisciplinas, Cursor);
+     right(Action), Cursor =:= 0 -> cadastroDisciplinaScreen(ListaCompromissos, ListaDisciplinas);
      right(Action), Cursor =:= 1 -> acessoEdicaoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, 0);
      right(Action), Cursor =:= 2 -> acessoRemocaoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, 0);
      right(Action) -> configuracoesScreen(ListaCompromissos, ListaDisciplinas, Cursor);
@@ -323,7 +329,7 @@ doAcessoEdicaoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, Cursor, Act
 
 acessoEdicaoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, Cursor) :-
     shell(clear),
-    listNomesDisciplinas(ListaDisciplinas, ListaOpcoes),
+    listNomesDisciplinas(ListaDisciplina, ListaOpcoes),
     showOptions(ListaOpcoes, Cursor, 0),
     get_single_char(Action),
     doAcessoEdicaoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, Cursor, Action).
@@ -373,6 +379,21 @@ edicaoDisciplinaScreen(ListaCompromissos, ListaDisciplinas, IndexDisciplina, Cur
     doEdicaoDisciplinaScreen(ListaCompromissos, ListaDisciplinas, IndexDisciplina, Disciplina, Cursor, Action).
 /* tela disciplina para edicao --*/
 
+/* -- tela de cadastro de disciplinas */
+cadastroDisciplinaScreen(ListaCompromissos, ListaDisciplinas) :-
+    getString(Nome, "Digite um novo Nome de disciplina"),
+    getString(Professor, "Digite um nome para o professor"),
+    getString(Sala, "Digite o Identificador da sala"),
+
+    Notas = [["1º Nota",33.33, 0, 1], ["2º Nota",33.33, 0, 1], ["3º Nota", 33.33, 0, 1]],
+    append(ListaDisciplinas, [[Nome,Sala,Professor,Notas]], NewO),
+
+    writeln("\nA disciplina foi iniciada com o sistema de notas padrao, (!!nao se preucupe ele pode ser modificado em configuracoes!!)"),
+    get_single_char(NotUsed),
+
+    configuracoesScreen(ListaCompromissos, NewO, 0).
+
+/* tela de cadastro de disciplinas --*/
 
 a([["ozocaba", "babaca", "zocaro", [["poi", 100.00, 100, 1], ["poi", 100.00, 100, 1]]], ["ozocaba", "babaca", "zocaro", [["poi", 100.00, 100, 1]]]]).
 main :-
