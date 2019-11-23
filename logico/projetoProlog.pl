@@ -5,6 +5,7 @@ down(115).
 left(97).
 right(100).
 select(113).
+remotion(101).
 
 mediaAprovacaoPadrao(7.0).
 mediaAprovacaoFinal(5.0).
@@ -35,9 +36,22 @@ downAction(Cursor, Limit, NewCursor) :-
     PC is Cursor + 1,
     NewCursor is PC mod Max.
 
+remotionExitAction(Mensagem, Resultado) :-
+    shell(clear),
+    writeln(Mensagem),
+    get_single_char(Input),
+    (remotion(Input) -> Resultado is 1;
+     Resultado is 0).
+
 switch([O|Os], Item, Pos, Cont, NewO) :-
     (Pos =:= Cont -> NewO = [Item|Os];
      Cont2 is Cont + 1, switch(Os, Item, Pos, Cont2, NewO2), NewO = [O|NewO2]).
+
+
+remove([], _, _, []).
+remove([O|Os], Pos, Cont, NewO) :-
+    (Pos =:= Cont -> NewO = Os;
+     Cont2 is Cont1 + 1, remove(O, Pos, Cont2, NewO2), NewO = [O|NewO2]).
 
 showOptions([], _, _).
 showOptions([A|As], N, N) :- 
@@ -73,6 +87,12 @@ getDouble(FinalInput, Mensagem) :-
     read(Return),
     FinalInput = Return.
 
+getInt(FinalInput, Mensagem) :-
+    write("\n"),
+    writeln(Mensagem),
+    read(Return),
+    FinalInput = Return.
+
 /*-- funcoes de entrada de dados*/
 
 /*-- tela principal*/
@@ -102,6 +122,8 @@ doConfiguracoesScreen(ListaCompromissos, ListaDisciplinas, Cursor, Action) :-
     (up(Action) -> upAction(Cursor, 3, NewCursor), configuracoesScreen(ListaCompromissos, ListaDisciplinas, NewCursor);
      down(Action) -> downAction(Cursor, 3, NewCursor), configuracoesScreen(ListaCompromissos, ListaDisciplinas, NewCursor);
      left(Action) -> mainScreen(ListaCompromissos, ListaDisciplinas, Cursor);
+     right(Action), Cursor =:= 1 -> acessoEdicaoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, 0);
+     right(Action), Cursor =:= 2 -> acessoRemocaoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, 0);
      right(Action) -> configuracoesScreen(ListaCompromissos, ListaDisciplinas, Cursor);
      configuracoesScreen(ListaCompromissos, ListaDisciplinas, Cursor)).
 
@@ -268,6 +290,89 @@ disciplinaScreen(ListaCompromissos, ListaDisciplinas, CursorX, CursorY, IndexDis
     get_single_char(Action),
     doDisciplinasScreen(ListaCompromissos, ListaDisciplinas, CursorX, CursorY, [Nome,Sala,Professor,Notas], Action, IndexDisciplina).
 /* tela de uma disciplina --*/
+
+/* -- tela de remocao de disciplinas */
+doAcessoRemocaoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, Cursor, Action) :-
+    
+    length(ListaDisciplinas, Len),
+    (up(Action) -> length(ListaDisciplinas, Tam), Tamanho is Tam-1, upAction(Cursor, Tamanho, NewCursor), acessoRemocaoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, NewCursor);
+     down(Action) -> length(ListaDisciplinas, Tam), Tamanho is Tam-1, downAction(Cursor, Tamanho, NewCursor), acessoRemocaoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, NewCursor);
+     left(Action) -> configuracoesScreen(ListaCompromissos, ListaDisciplinas, 0);
+     select(Action), Len > 0 -> remotionExitAction("Caso deseje excluir a disciplina pressione a tecla (e)", Resultado), 
+     (Resultado =:= 1 -> remove(ListaDisciplinas, Cursor, 0, NewLis), shell(clear), writeln("Excluido com sucesso"), get_single_char(NotUsed), acessoRemocaoDisciplinasScreen(ListaCompromissos, NewLis, 0);
+      acessoRemocaoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, 0));
+     acessoRemocaoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, Cursor)
+    ).
+
+acessoRemocaoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, Cursor) :-
+    shell(clear),
+    listNomesDisciplinas(ListaDisciplinas, ListaOpcoes),
+    showOptions(ListaOpcoes, Cursor, 0),
+    get_single_char(Action),
+    doAcessoRemocaoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, Cursor, Action).
+/* tela de remocao de disciplinas --*/
+
+/* -- tela acesso disciplinas para edicao */
+doAcessoEdicaoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, Cursor, Action) :-
+    (up(Action) -> length(ListaDisciplinas, Tam), Tamanho is Tam-1, upAction(Cursor, Tamanho, NewCursor), acessoEdicaoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, NewCursor);
+     down(Action) -> length(ListaDisciplinas, Tam), Tamanho is Tam-1, downAction(Cursor, Tamanho, NewCursor), acessoEdicaoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, NewCursor);
+     left(Action) -> configuracoesScreen(ListaCompromissos, ListaDisciplinas, 0);
+     right(Action) -> edicaoDisciplinaScreen(ListaCompromissos, ListaDisciplinas, Cursor, 0);
+     acessoEdicaoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, Cursor)
+    ).
+
+acessoEdicaoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, Cursor) :-
+    shell(clear),
+    listNomesDisciplinas(ListaDisciplinas, ListaOpcoes),
+    showOptions(ListaOpcoes, Cursor, 0),
+    get_single_char(Action),
+    doAcessoEdicaoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, Cursor, Action).
+/* tela acesso disciplinas para edicao --*/
+
+/* -- tela disciplina para edicao */
+optionEdicaoDisciplina([Nome,Sala,Professor,Notas], ListaOpcoes) :-
+    length(Notas, Len),
+    string_concat("Nome Disciplina: ", Nome, A),
+    string_concat("Nome Professor: ", Professor, B),
+    string_concat("Sala: ", Sala, C),
+    string_concat("Quantidade de notas: ", Len, D),
+    ListaOpcoes = [A,B,C,D].
+
+retrieve([N|Ns], NewLen, NewNotas, Cont) :-
+    (Cont =:= NewLen -> NewNotas = [];
+     Cont2 is Cont + 1, retrieve(Ns, NewLen, NewNotas2, Cont2), NewNotas = [N|NewNotas2]).
+
+getEmptyNotas(OldLen, NewLen, EmptyNotas) :-
+    string_concat(OldLen,"º Nota", Nome),
+    (NewLen =:= OldLen -> EmptyNotas = [[Nome, 0, 0, 0]];
+     OldLen2 is OldLen + 1, getEmptyNotas(OldLen2, NewLen, EmptyNotas2), EmptyNotas = [[Nome, 0, 0, 0]|EmptyNotas2]).
+
+getNewLenNotas(Notas, OldLen, NewLen, NewO) :-
+    (NewLen < OldLen -> retrieve(Notas, NewLen, NewNotas, 0), NewO = NewNotas;
+     NewLen > OldLen -> OldLen2 is OldLen + 1, getEmptyNotas(OldLen2, NewLen, EmptyNotas), append(Notas, EmptyNotas, NewNotas), NewO = NewNotas;
+     NewO = Notas
+).
+
+doEdicaoDisciplinaScreen(ListaCompromissos, ListaDisciplinas, IndexDisciplina, [Nome,Sala,Professor,Notas], Cursor, Action) :-
+    (up(Action) -> Tamanho is 3, upAction(Cursor, Tamanho, NewCursor), edicaoDisciplinaScreen(ListaCompromissos, ListaDisciplinas, IndexDisciplina, NewCursor);
+     down(Action) -> Tamanho is 3, downAction(Cursor, Tamanho, NewCursor), edicaoDisciplinaScreen(ListaCompromissos, ListaDisciplinas, IndexDisciplina, NewCursor);
+     left(Action) -> configuracoesScreen(ListaCompromissos, ListaDisciplinas, 0);
+     right(Action), Cursor =:= 0 -> getString(Input, "Digite o novo nome da disciplina"), switch(ListaDisciplinas, [Input,Sala,Professor,Notas], IndexDisciplina, 0, NewO), edicaoDisciplinaScreen(ListaCompromissos, NewO, IndexDisciplina, Cursor);
+     right(Action), Cursor =:= 2 -> getString(Input, "Digite a nova sala da disciplina"), switch(ListaDisciplinas, [Nome,Input,Professor,Notas], IndexDisciplina, 0, NewO), edicaoDisciplinaScreen(ListaCompromissos, NewO, IndexDisciplina, Cursor);
+     right(Action), Cursor =:= 1 -> getString(Input, "Digite o novo professor da disciplina"), switch(ListaDisciplinas, [Nome,Sala,Input,Notas], IndexDisciplina, 0, NewO), edicaoDisciplinaScreen(ListaCompromissos, NewO, IndexDisciplina, Cursor);
+     right(Action), Cursor =:= 3 -> getInt(Input, "Digite a nova quantidade de notas"), length(Notas, Len), getNewLenNotas(Notas, Len, Input, NewNotas), switch(ListaDisciplinas, [Nome,Sala,Professor,NewNotas], IndexDisciplina, 0, NewO), edicaoDisciplinaScreen(ListaCompromissos, NewO, IndexDisciplina, Cursor);
+     edicaoDisciplinaScreen(ListaCompromissos, ListaDisciplinas, IndexDisciplina, Cursor)
+    ).
+
+edicaoDisciplinaScreen(ListaCompromissos, ListaDisciplinas, IndexDisciplina, Cursor) :-
+    shell(clear),
+    nth0(IndexDisciplina, ListaDisciplinas, Disciplina),
+    optionEdicaoDisciplina(Disciplina, ListaOpcoes),
+    showOptions(ListaOpcoes, Cursor, 0),
+    get_single_char(Action),
+    doEdicaoDisciplinaScreen(ListaCompromissos, ListaDisciplinas, IndexDisciplina, Disciplina, Cursor, Action).
+/* tela disciplina para edicao --*/
+
 
 a([["ozocaba", "babaca", "zocaro", [["poi", 100.00, 100, 1], ["poi", 100.00, 100, 1]]], ["ozocaba", "babaca", "zocaro", [["poi", 100.00, 100, 1]]]]).
 main :-
