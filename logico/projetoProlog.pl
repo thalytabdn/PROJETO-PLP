@@ -145,10 +145,11 @@ configuracoesScreen(ListaCompromissos, ListaDisciplinas, Cursor) :-
 
 /* -- tela acesso disciplinas */
 doAcessoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, Cursor, Action) :-
-    (up(Action) -> length(ListaDisciplinas, Tam), Tamanho is Tam-1, upAction(Cursor, Tamanho, NewCursor), acessoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, NewCursor);
-     down(Action) -> length(ListaDisciplinas, Tam), Tamanho is Tam-1, downAction(Cursor, Tamanho, NewCursor), acessoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, NewCursor);
+    length(ListaDisciplinas, Tam),
+    (up(Action), Tam > 0 ->  Tamanho is Tam-1, upAction(Cursor, Tamanho, NewCursor), acessoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, NewCursor);
+     down(Action), Tam > 0 -> Tamanho is Tam-1, downAction(Cursor, Tamanho, NewCursor), acessoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, NewCursor);
      left(Action) -> mainScreen(ListaCompromissos, ListaDisciplinas, 0);
-     right(Action) -> disciplinaScreen(ListaCompromissos, ListaDisciplinas, 0 , 0, Cursor);
+     right(Action), Tam > 0 -> disciplinaScreen(ListaCompromissos, ListaDisciplinas, 0 , 0, Cursor);
      acessoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, Cursor)
     ).
 
@@ -216,16 +217,20 @@ checaPesoTotalValido(PesoConsiderado, PesoDesconsiderado, ValorConsiderado, Valo
 
 showRelatorioSituacao(Notas) :-
 
+    length(Notas, Tam),
+    (Tam =:= 0 -> write("\nMedia Acumulada: inexistente");
+
     getPesoConsiderado(Notas, PesoConsiderado),
     getPesoDesconsiderado(Notas, PesoDesconsiderado),
     getValorConsiderado(Notas, ValorConsiderado),
     getValorDesconsiderado(Notas, ValorDesconsiderado),
+    
     getMediaGeral(PesoConsiderado, PesoDesconsiderado, ValorConsiderado, ValorDesconsiderado, MediaGeral),
 
     write("\nMedia Acumulada: "),
     writeln(MediaGeral),
 
-    checaPesoTotalValido(PesoConsiderado, PesoDesconsiderado, ValorConsiderado, ValorDesconsiderado).
+    checaPesoTotalValido(PesoConsiderado, PesoDesconsiderado, ValorConsiderado, ValorDesconsiderado)).
 
 showDisciplinaHeader(Nome, Sala, Professor) :-
     write("Disciplina: "), writeln(Nome),
@@ -276,12 +281,13 @@ getNewConsiderarNota([Nome,Sala,Professor,Notas], CursorY, NewDisciplina) :-
     NewDisciplina = [Nome,Sala,Professor,NewNotas].
 
 doDisciplinasScreen(ListaCompromissos, ListaDisciplinas, CursorX, CursorY, [Nome,Sala,Professor,Notas], Action, IndexDisciplina) :-
-    (up(Action) -> length(Notas, Tam), Tamanho is Tam-1, upAction(CursorY, Tamanho, NewCursorY), disciplinaScreen(ListaCompromissos, ListaDisciplinas, CursorX, NewCursorY, IndexDisciplina);
-     down(Action) -> length(Notas, Tam), Tamanho is Tam-1, downAction(CursorY, Tamanho, NewCursorY), disciplinaScreen(ListaCompromissos, ListaDisciplinas, CursorX, NewCursorY, IndexDisciplina);
+    length(Notas, Tam),
+    (up(Action), Tam > 0  -> Tamanho is Tam-1, upAction(CursorY, Tamanho, NewCursorY), disciplinaScreen(ListaCompromissos, ListaDisciplinas, CursorX, NewCursorY, IndexDisciplina);
+     down(Action), Tam > 0  -> Tamanho is Tam-1, downAction(CursorY, Tamanho, NewCursorY), disciplinaScreen(ListaCompromissos, ListaDisciplinas, CursorX, NewCursorY, IndexDisciplina);
      left(Action), CursorX =:= 0 -> acessoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, 0);
-     left(Action) -> upAction(CursorX, 3, NewCursorX), disciplinaScreen(ListaCompromissos, ListaDisciplinas, NewCursorX, CursorY, IndexDisciplina);
-     right(Action) -> downAction(CursorX, 3, NewCursorX), disciplinaScreen(ListaCompromissos, ListaDisciplinas, NewCursorX, CursorY, IndexDisciplina);
-     select(Action), CursorX =:= 0 -> getNewNomeNota([Nome,Sala,Professor,Notas], CursorY, NewDisciplina), switch(ListaDisciplinas, NewDisciplina, IndexDisciplina, 0, OI), disciplinaScreen(ListaCompromissos, OI, CursorX, CursorY, IndexDisciplina);
+     left(Action), Tam > 0  -> upAction(CursorX, 3, NewCursorX), disciplinaScreen(ListaCompromissos, ListaDisciplinas, NewCursorX, CursorY, IndexDisciplina);
+     right(Action), Tam > 0  -> downAction(CursorX, 3, NewCursorX), disciplinaScreen(ListaCompromissos, ListaDisciplinas, NewCursorX, CursorY, IndexDisciplina);
+     select(Action), CursorX =:= 0, Tam > 0 -> getNewNomeNota([Nome,Sala,Professor,Notas], CursorY, NewDisciplina), switch(ListaDisciplinas, NewDisciplina, IndexDisciplina, 0, OI), disciplinaScreen(ListaCompromissos, OI, CursorX, CursorY, IndexDisciplina);
      select(Action), CursorX =:= 1 -> getNewValorNota([Nome,Sala,Professor,Notas], CursorY, NewDisciplina), switch(ListaDisciplinas, NewDisciplina, IndexDisciplina, 0, OI), disciplinaScreen(ListaCompromissos, OI, CursorX, CursorY, IndexDisciplina);
      select(Action), CursorX =:= 2 -> getNewPesoNota([Nome,Sala,Professor,Notas], CursorY, NewDisciplina), switch(ListaDisciplinas, NewDisciplina, IndexDisciplina, 0, OI), disciplinaScreen(ListaCompromissos, OI, CursorX, CursorY, IndexDisciplina);
      select(Action), CursorX =:= 3 -> getNewConsiderarNota([Nome,Sala,Professor,Notas], CursorY, NewDisciplina), switch(ListaDisciplinas, NewDisciplina, IndexDisciplina, 0, OI), disciplinaScreen(ListaCompromissos, OI, CursorX, CursorY, IndexDisciplina);
@@ -300,11 +306,11 @@ disciplinaScreen(ListaCompromissos, ListaDisciplinas, CursorX, CursorY, IndexDis
 /* -- tela de remocao de disciplinas */
 doAcessoRemocaoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, Cursor, Action) :-
     
-    length(ListaDisciplinas, Len),
-    (up(Action) -> length(ListaDisciplinas, Tam), Tamanho is Tam-1, upAction(Cursor, Tamanho, NewCursor), acessoRemocaoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, NewCursor);
-     down(Action) -> length(ListaDisciplinas, Tam), Tamanho is Tam-1, downAction(Cursor, Tamanho, NewCursor), acessoRemocaoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, NewCursor);
+    length(ListaDisciplinas, Tam),
+    (up(Action), Tam > 0 -> Tamanho is Tam-1, upAction(Cursor, Tamanho, NewCursor), acessoRemocaoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, NewCursor);
+     down(Action), Tam > 0 -> Tamanho is Tam-1, downAction(Cursor, Tamanho, NewCursor), acessoRemocaoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, NewCursor);
      left(Action) -> configuracoesScreen(ListaCompromissos, ListaDisciplinas, 0);
-     select(Action), Len > 0 -> remotionExitAction("Caso deseje excluir a disciplina pressione a tecla (e)", Resultado), 
+     select(Action), Tam > 0 -> remotionExitAction("Caso deseje excluir a disciplina pressione a tecla (e)", Resultado), 
      (Resultado =:= 1 -> remove(ListaDisciplinas, Cursor, 0, NewLis), shell(clear), writeln("Excluido com sucesso"), get_single_char(NotUsed), acessoRemocaoDisciplinasScreen(ListaCompromissos, NewLis, 0);
       acessoRemocaoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, 0));
      acessoRemocaoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, Cursor)
@@ -320,16 +326,17 @@ acessoRemocaoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, Cursor) :-
 
 /* -- tela acesso disciplinas para edicao */
 doAcessoEdicaoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, Cursor, Action) :-
-    (up(Action) -> length(ListaDisciplinas, Tam), Tamanho is Tam-1, upAction(Cursor, Tamanho, NewCursor), acessoEdicaoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, NewCursor);
-     down(Action) -> length(ListaDisciplinas, Tam), Tamanho is Tam-1, downAction(Cursor, Tamanho, NewCursor), acessoEdicaoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, NewCursor);
+    length(ListaDisciplinas, Tam), 
+    (up(Action), Tam > 0 -> Tamanho is Tam-1, upAction(Cursor, Tamanho, NewCursor), acessoEdicaoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, NewCursor);
+     down(Action), Tam > 0 -> Tamanho is Tam-1, downAction(Cursor, Tamanho, NewCursor), acessoEdicaoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, NewCursor);
      left(Action) -> configuracoesScreen(ListaCompromissos, ListaDisciplinas, 0);
-     right(Action) -> edicaoDisciplinaScreen(ListaCompromissos, ListaDisciplinas, Cursor, 0);
+     right(Action), Tam > 0 -> edicaoDisciplinaScreen(ListaCompromissos, ListaDisciplinas, Cursor, 0);
      acessoEdicaoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, Cursor)
     ).
 
 acessoEdicaoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, Cursor) :-
     shell(clear),
-    listNomesDisciplinas(ListaDisciplina, ListaOpcoes),
+    listNomesDisciplinas(ListaDisciplinas, ListaOpcoes),
     showOptions(ListaOpcoes, Cursor, 0),
     get_single_char(Action),
     doAcessoEdicaoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, Cursor, Action).
