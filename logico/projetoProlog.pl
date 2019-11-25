@@ -106,7 +106,7 @@ optionsMainScreen([" Disciplinas", " Compromissos", " Configuracoes", " Tutorial
 doMainScreen(ListaCompromissos, ListaDisciplinas, Cursor, Action) :-
     (up(Action) -> upAction(Cursor, 3, NewCursor), mainScreen(ListaCompromissos, ListaDisciplinas, NewCursor);
      down(Action) -> downAction(Cursor, 3, NewCursor), mainScreen(ListaCompromissos, ListaDisciplinas, NewCursor);
-     left(Action) -> write("");
+     left(Action) -> killRunning(ListaCompromissos, ListaDisciplinas);
      right(Action) -> (Cursor =:= 0 -> acessoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, 0);
                        Cursor =:= 2 -> configuracoesScreen(ListaCompromissos, ListaDisciplinas, 0);
                        mainScreen(ListaCompromissos, ListaDisciplinas, Cursor));
@@ -402,7 +402,23 @@ cadastroDisciplinaScreen(ListaCompromissos, ListaDisciplinas) :-
 
 /* tela de cadastro de disciplinas --*/
 
+write_list_to_file(Filename,List) :-
+    open(Filename, write, File),
+    write_canonical(File, List),  
+    write(File, "."),
+    close(File).
+
+readDisciplinas(ListaDisciplinas) :-
+    open("Arquivos/Disciplinas.dat", read, File),
+    read(File, W),
+    close(File),
+    ListaDisciplinas = W.
+
+killRunning(ListaCompromissos, ListaDisciplinas) :-
+    write_list_to_file("Arquivos/Disciplinas.dat", ListaDisciplinas).
+
+
 a([["ozocaba", "babaca", "zocaro", [["poi", 100.00, 100, 1], ["poi", 100.00, 100, 1]]], ["ozocaba", "babaca", "zocaro", [["poi", 100.00, 100, 1]]]]).
 main :-
-    a(Li),
-    mainScreen([], Li, 0).
+    readDisciplinas(ListaDisciplinas),
+    mainScreen([], ListaDisciplinas, 0).
