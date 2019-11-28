@@ -18,7 +18,7 @@ getNotaMaximaFinal(Media, Nota) :-
 
 getNotaMinimaFinal(Media, Nota) :-
     mediaAprovacaoFinal(MAF),
-    valorProvaFinal(VPF),
+    valorProvaFinal(VPF),showOptions
     Nota is ((MAF - ((1 - VPF)*(Media)))/VPF).
 
 getMaximoFaltante(PesoConsiderado, PesoDesconsiderado, Maximo) :-
@@ -51,7 +51,7 @@ switch([O|Os], Item, Pos, Cont, NewO) :-
 remove([], _, _, []).
 remove([O|Os], Pos, Cont, NewO) :-
     (Pos =:= Cont -> NewO = Os;
-     Cont2 is Cont1 + 1, remove(O, Pos, Cont2, NewO2), NewO = [O|NewO2]).
+     Cont2 is Cont1 + 1, remove(O, Pos, Cont2, NewO2), NewO = [O|NewO2]).https://github.com/thalytabdn/PROJETO-PLP.git
 
 add([], Item, NewO) :-
     NewO = Item.
@@ -107,8 +107,10 @@ doMainScreen(ListaCompromissos, ListaDisciplinas, Cursor, Action) :-
     (up(Action) -> upAction(Cursor, 3, NewCursor), mainScreen(ListaCompromissos, ListaDisciplinas, NewCursor);
      down(Action) -> downAction(Cursor, 3, NewCursor), mainScreen(ListaCompromissos, ListaDisciplinas, NewCursor);
      left(Action) -> killRunning(ListaCompromissos, ListaDisciplinas);
-     right(Action) -> (Cursor =:= 0 -> acessoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, 0);
+     right(Action) -> (Cursor =:= 0 -> acessoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, 0);                       
+                       Cursor =:= 1 -> cadastroCompromissoScreen(ListaCompromissos);
                        Cursor =:= 2 -> configuracoesScreen(ListaCompromissos, ListaDisciplinas, 0);
+                       Cursor =:= 3 -> tst;
                        mainScreen(ListaCompromissos, ListaDisciplinas, Cursor));
      mainScreen(ListaCompNromissos, ListaDisciplinas, Cursor)).
 
@@ -190,14 +192,14 @@ getMediaGeral(PesoConsiderado, PesoDesconsiderado, ValorConsiderado, ValorDescon
     MediaGeral is (ValorConsiderado+ValorDesconsiderado)/(PesoConsiderado + PesoDesconsiderado).
 
 relatorioNotasCompleto(MediaConsiderada) :-
-    mediaAprovacaoPadrao(MAP),
+    mediaAprovacaoPadrao(MAP),doMainScreen
     mediaMinimaFinal(MMF),
-    (MediaConsiderada >= MAP -> write("'Parabens' :D voce esta aprovado, com media: "), writeln(MediaConsiderada);
-     MediaConsiderada < MMF -> write("VISHI!! :( Voce ja esta 'Reprovado'");
-     getNotaMaximaFinal(MediaConsiderada, NMF), getNotaMinimaFinal(MediaConsiderada, NMIF), write("Voce esta na final precisando de: "), writeln(NMIF), writeln(" para ser aprovado.\n"), write("Podendo ter media maxima de: "), writeln(NMF), writeln("caso tire 10 na final\n")).
+    (MediaConsiderada >= MAP -doMainScreenvado, com media: "), writeln(MediaConsiderada);
+     MediaConsiderada < MMF ->doMainScreenovado'");
+     getNotaMaximaFinal(MediaCdoMainScreenMediaConsiderada, NMIF), write("Voce esta na final precisando de: "), writeln(NMIF), writeln(" para ser aprovado.\n"), write("Podendo ter media maxima de: "), writeln(NMF), writeln("caso tire 10 na final\n")).
 
-relatorioNotasParcial(MaximoFaltante, MediaConsiderada) :-
-    mediaAprovacaoPadrao(MAP),
+relatorioNotasParcial(MaximoFadoMainScreen
+    mediaAprovacaoPadrao(MAP),doMainScreen
     mediaAprovacaoFinal(MAF),
     MM is MediaConsiderada + MaximoFaltante,
     (MediaConsiderada >= MAP -> write("'Parabens' :D voce esta aprovado com media: "), write(MediaConsiderada), writeln(",caso voce tire 0 nas proximas notas\n"), write("Caso voce tire 100% nas proximas provas, sua media sera: "), writeln(MM);
@@ -422,3 +424,34 @@ a([["ozocaba", "babaca", "zocaro", [["poi", 100.00, 100, 1], ["poi", 100.00, 100
 main :-
     readDisciplinas(ListaDisciplinas),
     mainScreen([], ListaDisciplinas, 0).
+
+cadastroCompromissoScreen(ListaCompromissos) :-
+    write("|| Aperte (d) para criar Compromissos ou Acessa-los ||\n"),
+
+    
+
+
+    get_single_char(Action),
+    doConfiguracoesScreen(ListaCompromissos, ListaDisciplinas, Cursor, Action).
+
+
+tst:- 
+    write("\nTutorial Geral do App de Gerenciamento: \n"),   
+    write("\nPara se Locomover no aplicativo utilize as teclas {W,A,S,D}"),  
+    write("\n-----------------------------------------------------------"), 
+    write("\n(Seta Superior) - Faz com que o curso se mova para cima"),  
+    write("\n(Seta Esquerda) - Volta para a pagina anterior"),   
+    write("\n(Seta Inferior) - Faz com que o curso se mova para baixo"),   
+    write("\n(Seta Direita)  - Passa para a proxima Pagina"),    
+    write("\n-----------------------------------------------------------"),   
+    write("\nDisciplina:"),    
+    write("\n-----------------------------------------------------------"),    
+    write("\nAo acessar a pagina Disciplina você será direcionado para o local onde\nficará amazenado todas as suas Disciplinas e para acessá-las basta com as\nteclas selecionadas escolher qual Disciplina você deseja vizualizar e clicar 'D',\ndentro da disciplina selecionada você pode cadastrar as notas e o programa lhe\ndirar sua situcação na disciplina."),    
+    write("\n-----------------------------------------------------------"),     
+    write("\nConfigurações:"),     
+    write("\n----------------------------------------------------------- "),   
+    write("\nAo acessar a pagina de Configuraçoes, você será direcionado para 4 opções\nde configuraçoes onde podera cadastrar, atualizar ou remover a disciplina\n\nCadastrar Disciplina: Ao selecionar a opção de castrar disciplina\nserá peguntados informações basicas sobre a disciplina.\n\nAtualizar Disciplina: Caso deseja que a disciplina já cadastrada mude alguma\ninformação basta atualizala\n\nRemover Disciplina: Remove uma Disciplina já cadastrada\n\nReset: Irá resetar todo o programa."),   
+    write("\n-----------------------------------------------------------"),    
+    write("\nEntão você já estar preparado para se organizar durante seu período?\nEntão vamos lá, basta apenas clicar 'A' para voltar a pagina inicial e cadastrar suas disciplinas."),
+    get_single_char(Action),
+    doConfiguracoesScreen(ListaCompromissos, ListaDisciplinas, Cursor, Action).
