@@ -426,15 +426,18 @@ main :-
     mainScreen([], ListaDisciplinas, 0).
 
 cadastroCompromissoScreen(ListaCompromissos) :-
-    write("|| Aperte (d) para criar Compromissos ou Acessa-los ||\n"),
+    write("\n-> CADASTRO\n"),
+    getString(Titulo,"Digite um titulo para o compromisso\n"),
+    getString(Detalhe,"Digite os Detalhes do compromisso\n"),
+    getString(Prioridade, "Digite a Prioridade do compromisso\n"),
 
+    append(ListaCompromissos, [[Titulo, Detalhe, Prioridade]], NewO),
+    writeln("").
+
+    /*CompomissoScreen((ListaCompromissos, NewO), 0).
+    Falta criar esse metodo*/
+      
     
-
-
-    get_single_char(Action),
-    doConfiguracoesScreen(ListaCompromissos, ListaDisciplinas, Cursor, Action).
-
-
 tst:- 
     write("\nTutorial Geral do App de Gerenciamento: \n"),   
     write("\nPara se Locomover no aplicativo utilize as teclas {W,A,S,D}"),  
