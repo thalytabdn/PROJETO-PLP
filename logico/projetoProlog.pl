@@ -51,7 +51,7 @@ switch([O|Os], Item, Pos, Cont, NewO) :-
 remove([], _, _, []).
 remove([O|Os], Pos, Cont, NewO) :-
     (Pos =:= Cont -> NewO = Os;
-     Cont2 is Cont1 + 1, remove(O, Pos, Cont2, NewO2), NewO = [O|NewO2]).
+     Cont2 is Cont + 1, remove(Os, Pos, Cont2, NewO2), NewO = [O|NewO2]).
 
 add([], Item, NewO) :-
     NewO = Item.
