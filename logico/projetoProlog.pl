@@ -98,14 +98,21 @@ getString(FinalInput, Mensagem) :-
 getDouble(FinalInput, Mensagem) :-
     write("\n"),
     writeln(Mensagem),
-    read(Return),
-    FinalInput = Return.
+    read_line_to_codes(user_input, Entrada), atom_string(Entrada, Return),
+    (number_string(Number, Return), Number >= 0 -> FinalInput = Number;
+     getDouble(F2, "Entrada invalida digite novamente"), FinalInput is F2).
+
+getDouble10(FinalInput, Mensagem) :-
+    getDouble(F, Mensagem),
+    (F >= 0, F =< 10 -> FinalInput is F;
+     getDouble(F2, "Entrada invalida digite novamente"), FinalInput is F2).
 
 getInt(FinalInput, Mensagem) :-
     write("\n"),
     writeln(Mensagem),
-    read(Return),
-    FinalInput = Return.
+    read_line_to_codes(user_input, Entrada), atom_string(Entrada, Return),
+    (number_string(Number, Return), Number >= 0 -> FinalInput = Number;
+     getDouble(F2, "Entrada invalida digite novamente"), FinalInput is F2).
 
 /*-- funcoes de entrada de dados*/
 
@@ -205,11 +212,15 @@ getValorDesconsiderado([[Nome, Peso, Valor,Considerar]|Ns], Retorno) :-
     (Considerar =:= 0 -> getValorDesconsiderado(Ns, Retorno2), V is Peso*Valor, Retorno = V + Retorno2;
     getValorDesconsiderado(Ns, Retorno2), Retorno = 0 + Retorno2).
 
+round(X,Y,D) :- Z is X * 10^D, round(Z, ZA), Y is ZA / 10^D.
+
 getMediaConsiderada(PesoConsiderado, PesoDesconsiderado, ValorConsiderado, ValorDesconsiderado, MediaConsiderada) :-
-    MediaConsiderada is (ValorConsiderado)/(PesoConsiderado + PesoDesconsiderado).
+    MediaConsiderada1 is (ValorConsiderado)/(PesoConsiderado + PesoDesconsiderado),
+    round(MediaConsiderada1, MediaConsiderada, 2).
 
 getMediaGeral(PesoConsiderado, PesoDesconsiderado, ValorConsiderado, ValorDesconsiderado, MediaGeral) :-
-    MediaGeral is (ValorConsiderado+ValorDesconsiderado)/(PesoConsiderado + PesoDesconsiderado).
+    MediaGeral1 is (ValorConsiderado+ValorDesconsiderado)/(PesoConsiderado + PesoDesconsiderado),
+    round(MediaGeral1, MediaGeral, 2).
 /* funcoes estatisticas --*/
 
 relatorioNotasCompleto(MediaConsiderada) :-
@@ -288,7 +299,7 @@ getNewPesoNota([Nome,Sala,Professor,Notas], CursorY, NewDisciplina) :-
 
 getNewValorNota([Nome,Sala,Professor,Notas], CursorY, NewDisciplina) :-
     nth0(CursorY, Notas, [Nome1, Peso1, Valor1,Considerar1]),
-    getDouble(Input, "Digite o novo valor da nota"),
+    getDouble10(Input, "Digite o novo valor da nota"),
     switch(Notas, [Nome1, Peso1, Input, Considerar1], CursorY, 0, NewNotas),
     NewDisciplina = [Nome,Sala,Professor,NewNotas].
 
