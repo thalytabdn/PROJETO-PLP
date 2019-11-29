@@ -1,5 +1,7 @@
 :- initialization(main).
-/* --funcoes uteis a mais de uma tela*/
+
+/* -> FUNCOES UTEIS -- */
+
 up(119).
 down(115).
 left(97).
@@ -11,6 +13,24 @@ mediaAprovacaoPadrao(7.0).
 mediaAprovacaoFinal(5.0).
 mediaMinimaFinal(4.0).
 valorProvaFinal(0.4).
+
+/* -------------------- */
+
+upAction(0, Limit, Limit).
+upAction(Cursor, _, NewCursor) :-
+    NewCursor is Cursor - 1.
+
+downAction(Cursor, Limit, NewCursor) :-
+    Max is Limit + 1,
+    PC is Cursor + 1,
+    NewCursor is PC mod Max.
+
+remotionExitAction(Mensagem, Resultado) :-
+    shell(clear),
+    writeln(Mensagem),
+    get_single_char(Input),
+    (remotion(Input) -> Resultado is 1;
+        Resultado is 0).
 
 getNotaMaximaFinal(Media, Nota) :-
     valorProvaFinal(VPF),
@@ -24,52 +44,32 @@ getNotaMinimaFinal(Media, Nota) :-
 getMaximoFaltante(PesoConsiderado, PesoDesconsiderado, Maximo) :-
     Maximo is ((PesoDesconsiderado *10)/(PesoConsiderado+PesoDesconsiderado)).
 
-upAction(Cursor, Limit, NewCursor) :-
-    Cursor =:= 0,
-    NewCursor is Limit.
-upAction(Cursor, _, NewCursor) :-
-    Cursor =\= 0,
-    NewCursor is Cursor - 1.
-
-downAction(Cursor, Limit, NewCursor) :-
-    Max is Limit + 1,
-    PC is Cursor + 1,
-    NewCursor is PC mod Max.
-
-remotionExitAction(Mensagem, Resultado) :-
-    shell(clear),
-    writeln(Mensagem),
-    get_single_char(Input),
-    (remotion(Input) -> Resultado is 1;
-     Resultado is 0).
-
 switch([O|Os], Item, Pos, Cont, NewO) :-
     (Pos =:= Cont -> NewO = [Item|Os];
-     Cont2 is Cont + 1, switch(Os, Item, Pos, Cont2, NewO2), NewO = [O|NewO2]).
-
+        Cont2 is Cont + 1, switch(Os, Item, Pos, Cont2, NewO2), NewO = [O|NewO2]).
 
 remove([], _, _, []).
 remove([O|Os], Pos, Cont, NewO) :-
     (Pos =:= Cont -> NewO = Os;
-     Cont2 is Cont + 1, remove(Os, Pos, Cont2, NewO2), NewO = [O|NewO2]).
+        Cont2 is Cont + 1, remove(Os, Pos, Cont2, NewO2), NewO = [O|NewO2]).
 
-add([], Item, NewO) :-
-    NewO = Item.
+add([], Item, Item).
 add([O|Os], Item, NewO) :-
-    add(Os, Item, NewO2), NewO = [O|NewO2].
+    add(Os, Item, NewO2),
+    NewO = [O|NewO2].
 
 showOptions([], _, _).
-showOptions([A|As], N, N) :- 
-    write("->"),
+showOptions([A|As], Cursor, Cursor) :- 
+    write("-> "),
     writeln(A),
-    N1 is N+1,
-    showOptions(As, N, N1).
+    N is Cursor + 1,
+    showOptions(As, Cursor, N).
     
 showOptions([A|As], Cursor, N) :- 
-    write("  "),
+    write("   "),
     writeln(A),
-    N1 is N+1,
-    showOptions(As, Cursor, N1).
+    NewN is N + 1,
+    showOptions(As, Cursor, NewN).
 
 listNomesDisciplinas([], []).
 listNomesDisciplinas([[Nome|Resto]|Ds], ListaOpcoes) :-
@@ -77,17 +77,17 @@ listNomesDisciplinas([[Nome|Resto]|Ds], ListaOpcoes) :-
     ListaOpcoes = [Nome|ListaOpcoes2].
 
 listNomesCompromissos([],[]).
-listNomesCompromissos([[Nome, Detalhes, Prioridade, Status]|Cs], ListaOpcoes) :-
-    listNomesCompromissos(Cs, ListaOpcoes2),
-    atom_concat(" Titulo:   ", Nome, A1),
-    atom_concat("\n   Status:   ", Status, A2),
+listNomesCompromissos([[Nome, Detalhes, Prioridade, Status]|OthersComps], ListaOpcoes) :-
+    listNomesCompromissos(OthersComps, NewListaOpcoes),
+    atom_concat("Titulo: ", Nome, A1),
+    atom_concat("\n   Status: ", Status, A2),
     atom_concat(A2, "\n", A3),
     atom_concat(A1, A3, A),
-    ListaOpcoes = [A|ListaOpcoes2].
+    ListaOpcoes = [A|NewListaOpcoes].
 
-/* funcoes uteis a mais de uma tela--*/
+/* FUNCOES UTEIS <- */
 
-/* funcoes de entrada de dados--*/
+/* -> FUNCOES PARA IO */
 
 getString(FinalInput, Mensagem) :-
     write("\n"),
@@ -100,76 +100,95 @@ getDouble(FinalInput, Mensagem) :-
     writeln(Mensagem),
     read_line_to_codes(user_input, Entrada), atom_string(Entrada, Return),
     (number_string(Number, Return), Number >= 0 -> FinalInput = Number;
-     getDouble(F2, "Entrada invalida digite novamente"), FinalInput is F2).
+        getDouble(NewF, "Entrada invalida digite novamente!"), FinalInput is NewF).
 
 getDouble10(FinalInput, Mensagem) :-
     getDouble(F, Mensagem),
     (F >= 0, F =< 10 -> FinalInput is F;
-     getDouble(F2, "Entrada invalida digite novamente"), FinalInput is F2).
+        getDouble(NewF, "Entrada invalida digite novamente!"), FinalInput is NewF).
 
 getInt(FinalInput, Mensagem) :-
     write("\n"),
     writeln(Mensagem),
     read_line_to_codes(user_input, Entrada), atom_string(Entrada, Return),
     (number_string(Number, Return), Number >= 0 -> FinalInput = Number;
-     getDouble(F2, "Entrada invalida digite novamente"), FinalInput is F2).
+        getDouble(NewF, "Entrada invalida digite novamente!"), FinalInput is NewF).
 
-/*-- funcoes de entrada de dados*/
+/* FUNCOES PARA IO <- */
 
-/*-- tela principal*/
-optionsMainScreen([" Disciplinas", " Compromissos", " Configuracoes", " Tutorial"]).
+/* -> TELA PRINCIPAL */
+
+optionsMainScreen(["Disciplinas", "Compromissos", "Configuracoes", "Tutorial"]).
+limitMain(3).
+
+/* ------------------------------------------------------------------------------ */
+
+showExitMessage() :-
+    shell(clear),
+    writeln("---------------------------------------------"),
+    writeln("* MUITO OBRIGADO POR UTILIZAR NOSSO SISTEMA *"),
+    writeln("*                 ATE MAIS!                 *"),
+    writeln("---------------------------------------------\n").
 
 doMainScreen(ListaCompromissos, ListaDisciplinas, Cursor, Action) :-
-    (up(Action) -> upAction(Cursor, 3, NewCursor), mainScreen(ListaCompromissos, ListaDisciplinas, NewCursor);
-     down(Action) -> downAction(Cursor, 3, NewCursor), mainScreen(ListaCompromissos, ListaDisciplinas, NewCursor);
-     left(Action) -> remotionExitAction("Caso deseje encerrar a execucao pressione a tecla (e)", Resultado), 
-     (Resultado =:= 1 -> shell(clear), writeln("Ate mais ver"), get_single_char(NotUsed), killRunning(ListaCompromissos, ListaDisciplinas);
-        mainScreen(ListaCompNromissos, ListaDisciplinas, Cursor));
+    limitMain(Limit),
+    (up(Action) -> upAction(Cursor, Limit, NewCursor), mainScreen(ListaCompromissos, ListaDisciplinas, NewCursor);
+     down(Action) -> downAction(Cursor, Limit, NewCursor), mainScreen(ListaCompromissos, ListaDisciplinas, NewCursor);
+     left(Action) -> showExitMessage(), killRunning(ListaCompromissos, ListaDisciplinas);
      right(Action) -> (Cursor =:= 0 -> acessoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, 0);
                        Cursor =:= 1 -> acessoCompromissosScreen(ListaCompromissos, ListaDisciplinas, 0);
                        Cursor =:= 2 -> configuracoesScreen(ListaCompromissos, ListaDisciplinas, 0);
-                       Cursor =:= 3 -> tutorialScreen(ListaCompromissos, ListaDisciplinas);
-                       mainScreen(ListaCompromissos, ListaDisciplinas, Cursor));
-     mainScreen(ListaCompNromissos, ListaDisciplinas, Cursor)).
+                       Cursor =:= 3 -> tutorialScreen(ListaCompromissos, ListaDisciplinas));
+     mainScreen(ListaCompromissos, ListaDisciplinas, Cursor)).
 
 mainScreen(ListaCompromissos, ListaDisciplinas, Cursor) :-
     shell(clear),
-    writeln("\n|| Utilize os direcionais (w,s) do teclado para mover o cursor e (a,d) para modificar a tela ||\n"),
+    writeln("\n|| (w,s) Para mover o cursor  ||"),
+    writeln("|| (a) Para modificar a tela  ||"),
+    writeln("|| (d) Para entrar nas opcoes ||\n"),
     optionsMainScreen(ListaOpcoes),
     showOptions(ListaOpcoes, Cursor, 0),
     get_single_char(Action),
     doMainScreen(ListaCompromissos, ListaDisciplinas, Cursor, Action).
-/*tela principal --*/
 
-/*-- tela configuracoes*/
-optionsConfiguracoesScreen([" Cadastrar disciplina", " Atualizar disciplina", " Remover disciplina", " Resetar sistema"]).
+/* TELA PRINCIPAL <- */
+
+/* -> TELA CONFIGURACOES */
+
+optionsConfiguracoesScreen(["Cadastrar disciplina", "Atualizar disciplina", "Remover disciplina", "Resetar sistema"]).
+limitConfig(3).
+
+/* -------------------------------------------------------------------------------------------------------------------- */
 
 doConfiguracoesScreen(ListaCompromissos, ListaDisciplinas, Cursor, Action) :-
-    (up(Action) -> upAction(Cursor, 3, NewCursor), configuracoesScreen(ListaCompromissos, ListaDisciplinas, NewCursor);
-     down(Action) -> downAction(Cursor, 3, NewCursor), configuracoesScreen(ListaCompromissos, ListaDisciplinas, NewCursor);
+    limitConfig(Limit),
+    (up(Action) -> upAction(Cursor, Limit, NewCursor), configuracoesScreen(ListaCompromissos, ListaDisciplinas, NewCursor);
+     down(Action) -> downAction(Cursor, Limit, NewCursor), configuracoesScreen(ListaCompromissos, ListaDisciplinas, NewCursor);
      left(Action) -> mainScreen(ListaCompromissos, ListaDisciplinas, 0);
-     right(Action), Cursor =:= 0 -> cadastroDisciplinaScreen(ListaCompromissos, ListaDisciplinas);
-     right(Action), Cursor =:= 1 -> acessoEdicaoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, 0);
-     right(Action), Cursor =:= 2 -> acessoRemocaoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, 0);
-     right(Action), Cursor =:= 3 -> remotionExitAction("Caso deseje limpar o banco de dados pressione (e) (nao tem volta)", Resultado), 
-     (Resultado =:= 1 -> shell(clear), writeln("Sistema resetado com sucesso."), get_single_char(NotUsed), resetSystem;
-      shell(clear), writeln("Sistema nao resetado."), get_single_char(NotUsed), configuracoesScreen(ListaCompromissos, ListaDisciplinas, 0)),
-     right(Action) -> configuracoesScreen(ListaCompromissos, ListaDisciplinas, Cursor);
+     right(Action) -> (Cursor =:= 0 -> cadastroDisciplinaScreen(ListaCompromissos, ListaDisciplinas);
+                       Cursor =:= 1 -> acessoEdicaoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, 0);
+                       Cursor =:= 2 -> acessoRemocaoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, 0);
+                       Cursor =:= 3 -> remotionExitAction("(e) Para limpar o banco [ IRREVERSSIVEL ]", Resultado), 
+                                       (Resultado =:= 1 -> shell(clear), writeln("Sistema resetado com sucesso!"),
+                                                           get_single_char(NotUsed),
+                                                           resetSystem;
+                                            configuracoesScreen(ListaCompromissos, ListaDisciplinas, 0)));
      configuracoesScreen(ListaCompromissos, ListaDisciplinas, Cursor)).
-
 
 configuracoesScreen(ListaCompromissos, ListaDisciplinas, Cursor) :-
     shell(clear),
-    writeln("\n|| Utilize os direcionais (w,s) do teclado para mover o cursor e (a,d) para modificar a tela ||"),
-    writeln("|| Aperte (d) para entrar nas opcoes ||\n"),
+    writeln("\n|| (w,s) Para mover o cursor  ||"),
+    writeln("|| (a) Para modificar a tela  ||"),
+    writeln("|| (d) Para entrar nas opcoes ||\n"),
     optionsConfiguracoesScreen(ListaOpcoes),
     showOptions(ListaOpcoes, Cursor, 0),
     get_single_char(Action),
     doConfiguracoesScreen(ListaCompromissos, ListaDisciplinas, Cursor, Action).
 
-/* tela Configuracoes --*/
+/* TELA CONFIGURACOES <- */
 
-/* -- tela acesso disciplinas */
+/* -> TELA DE ACESSO A DISCIPLINAS */
+
 doAcessoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, Cursor, Action) :-
     length(ListaDisciplinas, Tam),
     (up(Action), Tam > 0 ->  Tamanho is Tam-1, upAction(Cursor, Tamanho, NewCursor), acessoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, NewCursor);
@@ -181,17 +200,20 @@ doAcessoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, Cursor, Action) :
 
 acessoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, Cursor) :-
     shell(clear),
-    writeln("\n|| Utilize os direcionais (w,s) do teclado para mover o cursor e (a,d) para modificar a tela ||"),
-    writeln("|| Aperte (d) para entrar nas opcoes ||\n"),
+    writeln("\n|| (w,s) Para mover o cursor     ||"),
+    writeln("|| (a) Para modificar a tela     ||"),
+    writeln("|| (d) Para entrar na disciplina ||\n"),
     listNomesDisciplinas(ListaDisciplinas, ListaOpcoes),
     showOptions(ListaOpcoes, Cursor, 0),
     get_single_char(Action),
     doAcessoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, Cursor, Action).
-/* tela acesso disciplinas --*/
 
-/* -- tela de uma disciplina */
+/* TELA DE ACESSO A DISCIPLINAS <- */
 
-/* -- funcoes estatisticas */
+/* -> TELA DE REMOÇÃO DE DISCIPLINA */
+
+/* --> FUNÇÕES ESTÁTICAS */
+
 getPesoConsiderado([], 0).
 getPesoConsiderado([[Nome, Peso, Valor,Considerar]|Ns], Retorno) :- 
     (Considerar =:= 1 -> getPesoConsiderado(Ns, Retorno2), Retorno = Peso + Retorno2; 
@@ -221,7 +243,8 @@ getMediaConsiderada(PesoConsiderado, PesoDesconsiderado, ValorConsiderado, Valor
 getMediaGeral(PesoConsiderado, PesoDesconsiderado, ValorConsiderado, ValorDesconsiderado, MediaGeral) :-
     MediaGeral1 is (ValorConsiderado+ValorDesconsiderado)/(PesoConsiderado + PesoDesconsiderado),
     round(MediaGeral1, MediaGeral, 2).
-/* funcoes estatisticas --*/
+    
+/* FUNÇÕES ESTÁTICAS <-- */
 
 relatorioNotasCompleto(MediaConsiderada) :-
     mediaAprovacaoPadrao(MAP),
@@ -250,7 +273,6 @@ checaPesoTotalValido(PesoConsiderado, PesoDesconsiderado, ValorConsiderado, Valo
      writeln("\nErro - O valor somado de todos os pesos deve corresponder a 100%")).
 
 showRelatorioSituacao(Notas) :-
-
     getPesoConsiderado(Notas, PesoConsiderado),
     getPesoDesconsiderado(Notas, PesoDesconsiderado),
     getValorConsiderado(Notas, ValorConsiderado),
@@ -325,13 +347,12 @@ doDisciplinasScreen(ListaCompromissos, ListaDisciplinas, CursorX, CursorY, [Nome
      select(Action), CursorX =:= 2 -> getNewPesoNota([Nome,Sala,Professor,Notas], CursorY, NewDisciplina), switch(ListaDisciplinas, NewDisciplina, IndexDisciplina, 0, OI), disciplinaScreen(ListaCompromissos, OI, CursorX, CursorY, IndexDisciplina);
      select(Action), CursorX =:= 3 -> getNewConsiderarNota([Nome,Sala,Professor,Notas], CursorY, NewDisciplina), switch(ListaDisciplinas, NewDisciplina, IndexDisciplina, 0, OI), disciplinaScreen(ListaCompromissos, OI, CursorX, CursorY, IndexDisciplina);
      disciplinaScreen(ListaCompromissos, ListaDisciplinas, CursorX, CursorY, IndexDisciplina)).   
-    
 
 disciplinaScreen(ListaCompromissos, ListaDisciplinas, CursorX, CursorY, IndexDisciplina) :-
     shell(clear),
-    writeln("\n|| Aperte (a) ou (d) para mover o cursor horizontalmente ||"),
-    writeln("|| Aperte (w) ou (s) para mover o cursor verticalmente ||"), 
-    writeln("|| Aperte (q) para mudar algum atributo de nota ||"),
+    writeln("\n|| (a) ou (d) Para mover o cursor horizontalmente                                                              ||"),
+    writeln("|| (w) ou (s) Para mover o cursor verticalmente                                                                    ||"), 
+    writeln("|| (q) Para mudar algum atributo de nota                                                                           ||"),
     writeln("|| (Usar dado) indica se o codigo deve ou nao analisar a nota no relatorio (1)->sim (0)->nao, alterna-se com (q)!! ||\n"), 
 
     nth0(IndexDisciplina, ListaDisciplinas, [Nome,Sala,Professor,Notas]), 
@@ -339,33 +360,37 @@ disciplinaScreen(ListaCompromissos, ListaDisciplinas, CursorX, CursorY, IndexDis
     showRelatorioSituacao(Notas),
     get_single_char(Action),
     doDisciplinasScreen(ListaCompromissos, ListaDisciplinas, CursorX, CursorY, [Nome,Sala,Professor,Notas], Action, IndexDisciplina).
-/* tela de uma disciplina --*/
 
-/* -- tela de remocao de disciplinas */
+/* TELA DE UMA DISCIPLINA <- */
+
+/* -> TELA DE REMOÇÃO DE DISCIPLINA */
+
 doAcessoRemocaoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, Cursor, Action) :-
     
     length(ListaDisciplinas, Tam),
     (up(Action), Tam > 0 -> Tamanho is Tam-1, upAction(Cursor, Tamanho, NewCursor), acessoRemocaoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, NewCursor);
      down(Action), Tam > 0 -> Tamanho is Tam-1, downAction(Cursor, Tamanho, NewCursor), acessoRemocaoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, NewCursor);
      left(Action) -> configuracoesScreen(ListaCompromissos, ListaDisciplinas, 0);
-     select(Action), Tam > 0 -> remotionExitAction("Caso deseje excluir a disciplina pressione a tecla (e)", Resultado), 
-     (Resultado =:= 1 -> remove(ListaDisciplinas, Cursor, 0, NewLis), shell(clear), writeln("Excluido com sucesso"), get_single_char(NotUsed), acessoRemocaoDisciplinasScreen(ListaCompromissos, NewLis, 0);
+     select(Action), Tam > 0 -> remotionExitAction("(e) Para excluir a disciplina", Resultado), 
+     (Resultado =:= 1 -> remove(ListaDisciplinas, Cursor, 0, NewLis), shell(clear), writeln("Excluido com sucesso!"), get_single_char(NotUsed), acessoRemocaoDisciplinasScreen(ListaCompromissos, NewLis, 0);
       acessoRemocaoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, 0));
-     acessoRemocaoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, Cursor)
-    ).
+     acessoRemocaoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, Cursor)).
 
 acessoRemocaoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, Cursor) :-
     shell(clear),
-    writeln("\n|| Utilize os direcionais (w,s) do teclado para mover o cursor e (a,d) para modificar a tela ||"),
-    writeln("|| Aperte (q) para escolher qual disciplina remover ||\n"),
+    writeln("\n|| (w,s) Para mover o cursor                 ||"),
+    writeln("|| (a,d) Para modificar a tela               ||"),
+    writeln("|| (q) Para escolher qual disciplina remover ||\n"),
 
     listNomesDisciplinas(ListaDisciplinas, ListaOpcoes),
     showOptions(ListaOpcoes, Cursor, 0),
     get_single_char(Action),
     doAcessoRemocaoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, Cursor, Action).
-/* tela de remocao de disciplinas --*/
 
-/* -- tela acesso disciplinas para edicao */
+/* TELA DE REMOÇÃO DE DISCIPLINA <- */
+
+/* TELA DE ACESSO À EDIÇÃO DE DISCIPLINA <- */
+
 doAcessoEdicaoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, Cursor, Action) :-
     length(ListaDisciplinas, Tam), 
     (up(Action), Tam > 0 -> Tamanho is Tam-1, upAction(Cursor, Tamanho, NewCursor), acessoEdicaoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, NewCursor);
@@ -377,15 +402,18 @@ doAcessoEdicaoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, Cursor, Act
 
 acessoEdicaoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, Cursor) :-
     shell(clear),
-    writeln("\n|| Utilize os direcionais (w,s) do teclado para mover o cursor e (a,d) para modificar a tela ||"),
-    writeln("|| Aperte (d) para escolher qual disciplina Editar ||\n"),
+    writeln("\n|| (w,s) Para mover o cursor                 ||"),
+    writeln("|| (a,d) Para modificar a tela               ||"),
+    writeln("|| (d) Para escolher qual disciplina Editar  ||\n"),
     listNomesDisciplinas(ListaDisciplinas, ListaOpcoes),
     showOptions(ListaOpcoes, Cursor, 0),
     get_single_char(Action),
     doAcessoEdicaoDisciplinasScreen(ListaCompromissos, ListaDisciplinas, Cursor, Action).
-/* tela acesso disciplinas para edicao --*/
 
-/* -- tela disciplina para edicao */
+/* TELA DE ACESSO À EDIÇÃO DE DISCIPLINA <- */
+
+/* -> TELA PARA EDIÇÃO DE DISCIPLINA */
+
 optionEdicaoDisciplina([Nome,Sala,Professor,Notas], ListaOpcoes) :-
     length(Notas, Len),
     string_concat("Nome Disciplina: ", Nome, A),
@@ -430,9 +458,11 @@ edicaoDisciplinaScreen(ListaCompromissos, ListaDisciplinas, IndexDisciplina, Cur
     showOptions(ListaOpcoes, Cursor, 0),
     get_single_char(Action),
     doEdicaoDisciplinaScreen(ListaCompromissos, ListaDisciplinas, IndexDisciplina, Disciplina, Cursor, Action).
-/* tela disciplina para edicao --*/
 
-/* -- tela de cadastro de disciplinas */
+/* TELA PARA EDIÇÃO DE DISCIPLINA <- */
+
+/* -> TELA DE CADASTRO DE DISCIPLINAS */
+
 cadastroDisciplinaScreen(ListaCompromissos, ListaDisciplinas) :-
     shell(clear),
     getString(Nome, "Digite um novo Nome de disciplina"),
@@ -447,10 +477,11 @@ cadastroDisciplinaScreen(ListaCompromissos, ListaDisciplinas) :-
 
     configuracoesScreen(ListaCompromissos, NewO, 0).
 
-/* tela de cadastro de disciplinas --*/
+/* TELA DE CADASTRO DE DISCIPLINAS <- */
 
-/*-- tela de acesso de compromissos*/
-optionsAcessoCompromissoScreen([" CADASTRAR COMPROMISSO\n"]).
+/* -> TELA DE ACESSO ASOS COMPROMISSOS */
+
+optionsAcessoCompromissoScreen(["CADASTRAR COMPROMISSO\n"]).
 
 doAcessoCompromissosScreen(ListaCompromissos, ListaDisciplinas, Cursor, Action) :-
     length(ListaCompromissos, LEN),
@@ -463,8 +494,9 @@ doAcessoCompromissosScreen(ListaCompromissos, ListaDisciplinas, Cursor, Action) 
 
 acessoCompromissosScreen(ListaCompromissos, ListaDisciplinas, Cursor) :-
     shell(clear),
-    writeln("\n|| Utilize os direcionais (w,s) do teclado para mover o cursor e (a,d) para modificar a tela ||"),
-    writeln("|| Aperte (d) para cadastar ou acessar os compromissos ||\n"),
+    writeln("\n|| (w,s) Para mover o cursor                     ||"),
+    writeln("|| (a,d) Para modificar a tela                   ||"),
+    writeln("|| (d) Para cadastar ou acessar os compromissos  ||\n"),
     optionsAcessoCompromissoScreen(Opcoes),
     listNomesCompromissos(ListaCompromissos, ListaNomes),
     append(Opcoes, ListaNomes, ListaOpcoes),
@@ -472,9 +504,10 @@ acessoCompromissosScreen(ListaCompromissos, ListaDisciplinas, Cursor) :-
     get_single_char(Action),
     doAcessoCompromissosScreen(ListaCompromissos, ListaDisciplinas, Cursor, Action).
 
-/* tela de acesso de compromissos --*/
+/* TELA DE ACESSO ASOS COMPROMISSOS <- */
 
-/*-- tela de cadastro de compromissos */
+/* -> TELA DE CADASTRO DOS COMPROMISSOS */
+
 cadastroCompromissosScreen(ListaCompromissos, ListaDisciplinas) :-
     shell(clear),
     getString(Nome, "Digite um Titulo para o compromisso"),
@@ -483,14 +516,16 @@ cadastroCompromissosScreen(ListaCompromissos, ListaDisciplinas) :-
 
     append(ListaCompromissos, [[Nome, Detalhes, Prioridade, "Em Andamento"]], NewO),
     acessoCompromissosScreen(NewO, ListaDisciplinas, 0).
-/* tela de cadastro de compromissos --*/
 
-/*-- tela de compromissos */
+/* TELA DE CADASTRO DOS COMPROMISSOS <- */
+
+/* -> TELA DE COMPROMISSOS */
+
 optionsCompromissoScreen([Nome, Detalhes, Prioridade, Status], Options) :-
-    atom_concat(" Titulo   : ", Nome, L0),
-    atom_concat(" Detalhes  : ", Detalhes, L1),
-    atom_concat(" Prioridade: ", Prioridade, L2),
-    atom_concat(" Status:   ", Status, L3),
+    atom_concat("Titulo    : ", Nome, L0),
+    atom_concat("Detalhes  : ", Detalhes, L1),
+    atom_concat("Prioridade: ", Prioridade, L2),
+    atom_concat("Status    : ", Status, L3),
     atom_concat(L3, "\n", L4),    
 
     Options = [L0, L1, L2, L4, "REMOVER COMPROMISSO"].
@@ -511,43 +546,53 @@ doCompromissoScreen(ListaCompromissos, ListaDisciplinas, IndexCompromisso, Curso
 
 compromissoScreen(ListaCompromissos, ListaDisciplinas, IndexCompromisso, Cursor) :-
     shell(clear),
-    writeln("\n|| Aperte (d) para alterar os campos ou para excluir o Compromisso ||"),
-    writeln("|| Seleccione um campo para atera-lo ||\n"),
+    writeln("\n|| (w,s) Para mover o cursor                     ||"),
+    writeln("|| (a,d) Para modificar a tela                   ||"),
+    writeln("|| (d) Para cadastar ou acessar os compromissos  ||\n"),
+    writeln("|| Selecione um campo para atera-lo              ||\n"),
 
     nth0(IndexCompromisso, ListaCompromissos, Compromisso),
     optionsCompromissoScreen(Compromisso, Options),
     showOptions(Options, Cursor, 0),
     get_single_char(Action),
     doCompromissoScreen(ListaCompromissos, ListaDisciplinas, IndexCompromisso, Cursor, Action).
-/* tela de compromissos --*/
 
-/*-- tela tutorial */
+/* TELA DE COMPROMISSOS <- */
+
+/* -> TELA DE TUTORIAL */
+
 tutorialScreen(ListaCompromissos, ListaDisciplinas):- 
     shell(clear),
-    write("\nTutorial Geral do App de Gerenciamento: \n"),   
-    write("\nPara se Locomover no aplicativo utilize as teclas {w,a,s,d}"),  
-    write("\n-----------------------------------------------------------"), 
-    write("\n(w) - Faz com que o curso se mova para cima"),  
-    write("\n(a) - Volta para a pagina anterior"),   
-    write("\n(s) - Faz com que o curso se mova para baixo"),   
-    write("\n(d)  - Passa para a proxima Pagina"),    
-    write("\n-----------------------------------------------------------"),   
-    write("\nDisciplina:"),    
-    write("\n-----------------------------------------------------------"),    
-    write("\nAo acessar a pagina Disciplina você será direcionado para o local onde\nficará amazenado todas as suas Disciplinas e para acessá-las basta com as\nteclas selecionadas escolher qual Disciplina você deseja vizualizar e clicar 'D',\ndentro da disciplina selecionada você pode cadastrar as notas e o programa lhe\ndirar sua situcação na disciplina."),    
-    write("\n-----------------------------------------------------------"),     
-    write("\nConfigurações:"),     
-    write("\n----------------------------------------------------------- "),   
-    write("\nAo acessar a pagina de Configuraçoes, você será direcionado para 4 opções\nde configuraçoes onde podera cadastrar, atualizar ou remover a disciplina\n\nCadastrar Disciplina: Ao selecionar a opção de castrar disciplina\nserá peguntados informações basicas sobre a disciplina.\n\nAtualizar Disciplina: Caso deseja que a disciplina já cadastrada mude alguma\ninformação basta atualizala\n\nRemover Disciplina: Remove uma Disciplina já cadastrada\n\nReset: Irá resetar todo o programa."),   
-    write("\n-----------------------------------------------------------"),    
-    write("\nEntão você já estar preparado para se organizar durante seu período?\nEntão vamos lá, basta apenas clicar 'a' para voltar a pagina inicial e cadastrar suas disciplinas."),
+    writeln("TUTORIAL PARA O APP DE GERENCIAMENTO: "),
+    writeln("\nPara se Locomover no aplicativo utilize as teclas {W,A,S,D}"),
+    writeln("-----------------------------------------------------------"),
+    writeln("(w) - Faz com que o cursor se mova para cima"),
+    writeln("(a) - Volta para a pagina anterior"),
+    writeln("(s) - Faz com que o cursor se mova para baixo"),
+    writeln("(d) - Funciona como Enter"),
+    writeln("-----------------------------------------------------------"),
+    writeln("\nDISCIPLINA: "),
+    writeln("-----------------------------------------------------------"),
+    writeln("Ao acessar a pagina Disciplina você sera direcionado para o\nlocal onde ficarao amazenadas todas as suas Disciplinas e,\npara acessá-las, basta que, com as teclas indicadas acima,\nse escolha qual Disciplina você deseja.\n\nDentro da disciplina selecionada você pode cadastrar as\nnotas e o programa lhe dira sua situcacao na disciplina."),
+    writeln("-----------------------------------------------------------"),
+    writeln("\nCONFIGURACOES: "),
+    writeln("-----------------------------------------------------------"),
+    writeln("Ao acessar a pagina de Configuraçoes, você será direcionado\npara 4 opcoes de configuraçoes, onde poderá cadastrar,\natualizar ou remover a disciplina e/ou resetar o sistema."),
+    writeln("\nCadastrar Disciplina:\n    Ao selecionar a opção de castrar disciplina serao\n    peguntadas as informações basicas sobre a disciplina;"),
+    writeln("\nAtualizar Disciplina:\n    Caso deseje que alterar alguma informacao de uma\n    disciplina já cadastrada, basta atualiza-la;"),
+    writeln("\nRemover Disciplina: Remove uma Disciplina já cadastrada;"),
+    writeln("\nReset: Ira resetar todo o programa."),
+    writeln("\n-----------------------------------------------------------\n"),
+    writeln("Então... Ja ta preparado pra se organizar nesse periodo?"),
+    write("\nVamos lá, basta apenas pressionar 'a' para voltar a pagina\ninicial e cadastrar suas disciplinas e compromissos."),
     get_single_char(Action),
     (left(Action) -> mainScreen(ListaCompromissos, ListaDisciplinas, 0);
      tutorialScreen(ListaCompromissos, ListaDisciplinas)).
 
-/* tela tutorial --*/
+/* TELA DE TUTORIAL <- */
 
-/*-- metodos de malipulacao de arquivo */
+/* -> MANIPULAÇÃO DE ARQUIVOS */
+
 write_list_to_file(Filename,List) :-
     open(Filename, write, File),
     write_canonical(File, List),  
@@ -574,9 +619,11 @@ resetSystem :-
     write_list_to_file("Arquivos/Disciplinas.dat", []),
     write_list_to_file("Arquivos/Compromissos.dat", []),
     configuracoesScreen([], [], 0).
-/* metodos de malipulacao de arquivo --*/
+
+/* MANIPULAÇÃO DE ARQUIVOS <- */
 
 main :-
     readDisciplinas(ListaDisciplinas),
     readCompromissos(ListaCompromissos),
-    mainScreen(ListaCompromissos, ListaDisciplinas, 0).
+    mainScreen(ListaCompromissos, ListaDisciplinas, 0),
+    halt(0).
